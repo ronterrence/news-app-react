@@ -1,0 +1,39 @@
+{
+  "Africa": {
+    "Nigeria": "ng",
+    "Ghana": "gh",
+    "South Africa": "za",
+    "Kenya": "ke",
+    "Egypt": "eg",
+    "Morocco": "ma",
+    "Algeria": "dz"
+  },
+  "Europe": {
+    "France": "fr",
+    "Belgium": "be",
+    "United Kingdom": "gb",
+    "Germany": "de",
+    "Italy": "it",
+    "Spain": "es",
+    "Netherlands": "nl"
+
+  },
+  "North America": {
+    "United States": "us",
+    "Canada": "ca"
+  },
+  "Asia": {
+    "India": "in",
+    "Japan": "jp",
+    "China": "cn"
+  },
+  "South America": {
+    "Mexico": "mx",
+    "Brazil": "br",
+    "Argentina": "ar"
+  },
+  "Oceania": {
+    "Australia": "au",
+    "New Zealand": "nz"
+  }
+}
