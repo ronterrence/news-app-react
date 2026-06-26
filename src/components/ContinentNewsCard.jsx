@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import { fetchNews } from "../services/newsApi";
 import { extractKeywords } from "../utils/keywords";
@@ -34,30 +34,12 @@ function ContinentNewsCard({ continent, countries }) {
     }
   }, [countries, selectedCountry]);
 
-useEffect(() => {
-  let cancelled = false;
-
-  const run = async () => {
-    setStatus("loading");
+  const handleCountryChange = (event) => {
+    setSelectedCountry(event.target.value);
+    setHeadlines([]);
+    setStatus("idle");
     setErrorMessage("");
-    try {
-      const results = await fetchNews(countries[selectedCountry], selectedCountry);
-      if (!cancelled) {
-        setHeadlines(results);
-        setStatus("success");
-      }
-    } catch (error) {
-      if (!cancelled) {
-        setHeadlines([]);
-        setErrorMessage(error.message);
-        setStatus("error");
-      }
-    }
   };
-
-  run();
-  return () => { cancelled = true; };
-}, [selectedCountry, countries]);
 
   return (
     <section className="continent-card">
@@ -67,16 +49,42 @@ useEffect(() => {
           <p>Latest country news snapshot</p>
         </div>
 
-        <button className="refresh-button" onClick={loadNews} disabled={status === "loading"}>
-        {status === "loading" ? "Loading…" : "Refresh"}
+        <button
+          className="refresh-button"
+          onClick={loadNews}
+          disabled={status === "loading"}
+        >
+          {status === "loading" ? "Loading…" : "Refresh"}
         </button>
       </div>
 
-<label className="country-label" htmlFor={`country-select-${continent}`}>
-  Country
-</label>
+      <div className="country-field">
+        <label
+          className="country-label"
+          htmlFor={`country-select-${continent}`}
+        >
+          Country
+        </label>
 
+        <select
+          id={`country-select-${continent}`}
+          name={`country-select-${continent}`}
+          value={selectedCountry}
+          onChange={handleCountryChange}
+        >
+          {countryNames.map((country) => (
+            <option key={country} value={country}>
+              {country}
+            </option>
+          ))}
+        </select>
+      </div>
 
+      {status === "idle" && (
+        <p className="status-text">
+          Select a country and click Refresh to load news.
+        </p>
+      )}
 
       {status === "loading" && (
         <p className="status-text">Loading news for {selectedCountry}...</p>
@@ -96,7 +104,6 @@ useEffect(() => {
         </>
       )}
     </section>
-    
   );
 }
 
