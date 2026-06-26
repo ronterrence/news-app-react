@@ -15,3 +15,4 @@ function NewsList({ headlines }) {
 }
 
 export default NewsList;
+

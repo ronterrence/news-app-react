@@ -8,19 +8,26 @@ function getHeadlinesFromArticles(articles) {
 }
 
 export async function fetchNews(countryCode, countryName) {
-  const response = await fetch(
-    `${API_BASE_URL}/api/news?country=${countryCode}&countryName=${encodeURIComponent(
-      countryName
-    )}`
-  );
+  const url = `${API_BASE_URL}/api/news?country=${countryCode}&countryName=${encodeURIComponent(
+    countryName
+  )}`;
 
-  const data = await response.json();
+  const response = await fetch(url);
+
+  const text = await response.text();
+
+  let data;
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch {
+    throw new Error(
+      "Backend returned a non-JSON response. The backend Space may be sleeping, restarting, or in error."
+    );
+  }
 
   if (!response.ok) {
     throw new Error(data.error || data.message || "Failed to fetch news.");
   }
 
-  const articles = data.articles || [];
-
-  return getHeadlinesFromArticles(articles);
+  return getHeadlinesFromArticles(data.articles || []);
 }

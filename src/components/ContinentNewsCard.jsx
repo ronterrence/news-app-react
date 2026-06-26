@@ -72,19 +72,11 @@ useEffect(() => {
         </button>
       </div>
 
-      <label className="country-label">
-        Country
-        <select
-          value={selectedCountry}
-          onChange={(event) => setSelectedCountry(event.target.value)}
-        >
-          {countryNames.map((country) => (
-            <option key={country} value={country}>
-              {country}
-            </option>
-          ))}
-        </select>
-      </label>
+<label className="country-label" htmlFor={`country-select-${continent}`}>
+  Country
+</label>
+
+
 
       {status === "loading" && (
         <p className="status-text">Loading news for {selectedCountry}...</p>
