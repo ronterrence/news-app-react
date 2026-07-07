@@ -101,7 +101,7 @@ function ContinentNewsCard({ continent, countries }) {
           <NewsList articles={articles} />
 
           <div className="section-heading-row keywords-heading-row">
-            <h3>Top keywords</h3>
+            <h3>Keyword signals</h3>
             <span className="results-pill results-pill-muted">
               {keywords.length} signals
             </span>

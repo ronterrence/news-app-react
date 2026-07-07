@@ -1,6 +1,6 @@
 function KeywordChips({ keywords }) {
   if (!keywords.length) {
-    return <p className="empty-text">No keywords found.</p>;
+    return <p className="empty-text">No keyword signals found.</p>;
   }
 
   return (
