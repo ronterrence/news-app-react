@@ -159,7 +159,7 @@ function addWeightedTokens(counts, content, weight, exclusions) {
 }
 
 export function extractKeywords(articles, options = {}) {
-  const { limit = 6, excludedTerms = [] } = options;
+  const { limit = 12, excludedTerms = [] } = options;
   const counts = {};
   const exclusions = buildExclusions(excludedTerms);
 

@@ -11,7 +11,7 @@ function TopicToggle({ selectedTopic, onTopicChange }) {
     <aside className="topic-panel" aria-label="Topic selector">
       <p className="topic-label">Semantic topic</p>
       <p className="topic-helper-text">
-        Shapes the backend semantic query used for article retrieval.
+        Refines the semantic query used to retrieve country-related articles.
       </p>
       <div className="topic-toggle-list">
         {TOPIC_OPTIONS.map((topic) => {

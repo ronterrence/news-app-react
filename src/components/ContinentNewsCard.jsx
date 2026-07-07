@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { fetchNews } from "../services/newsApi";
 import { extractKeywords } from "../utils/keywords";
@@ -11,6 +11,7 @@ function ContinentNewsCard({
   selectedTopic,
   onKeywordSearch,
   activeKeyword,
+  onSignalsChange,
 }) {
   const countryNames = Object.keys(countries);
   const [selectedCountry, setSelectedCountry] = useState(countryNames[0]);
@@ -30,6 +31,10 @@ function ContinentNewsCard({
       }),
     [articles, continent, semanticQuery, selectedCountry, selectedTopic]
   );
+
+  useEffect(() => {
+    onSignalsChange?.(continent, keywords);
+  }, [continent, keywords, onSignalsChange]);
 
   const loadNews = useCallback(async () => {
     const countryCode = countries[selectedCountry];
@@ -60,7 +65,7 @@ function ContinentNewsCard({
       <div className="card-header">
         <div>
           <h2>{continent}</h2>
-          <p>Latest country news snapshot</p>
+          <p>Country retrieval view with keyword signals and article matches</p>
         </div>
 
         <button
@@ -106,12 +111,12 @@ function ContinentNewsCard({
 
       {status === "idle" && (
         <p className="status-text">
-          Select a country and click Refresh to load news.
+          Select a country and click Refresh to load article matches.
         </p>
       )}
 
       {status === "loading" && (
-        <p className="status-text">Loading news for {selectedCountry}...</p>
+        <p className="status-text">Loading article matches for {selectedCountry}...</p>
       )}
 
       {status === "error" && (
@@ -128,8 +133,8 @@ function ContinentNewsCard({
               </span>
             </div>
             <p className="panel-helper-text">
-              Signals are derived from headlines and metadata to avoid noisy
-              semantic document text.
+              Signals are derived from headlines and metadata to reduce noisy
+              semantic document text in the results.
             </p>
             <KeywordChips
               keywords={keywords}
@@ -144,8 +149,8 @@ function ContinentNewsCard({
               <span className="results-pill">{articles.length} articles</span>
             </div>
             <p className="panel-helper-text">
-              Article cards use the current news response while the topic toggle
-              steers semantic retrieval.
+              Article cards show the current response payload while the topic
+              selector steers semantic retrieval.
             </p>
             <NewsList articles={articles} />
           </div>

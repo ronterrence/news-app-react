@@ -3,15 +3,7 @@ import { useEffect, useState } from "react";
 import { searchNews } from "../services/newsApi";
 import NewsList from "./NewsList";
 
-const SUGGESTED_QUERIES = [
-  "technology and software innovation",
-  "global business markets",
-  "science research breakthrough",
-  "sports competition",
-  "renewable energy policy",
-];
-
-function GoldSearchPanel({ searchRequest, onSearchInteraction }) {
+function GoldSearchPanel({ searchRequest, onSearchInteraction, suggestions = [] }) {
   const [query, setQuery] = useState("");
   const [submittedQuery, setSubmittedQuery] = useState("");
   const [articles, setArticles] = useState([]);
@@ -79,17 +71,17 @@ function GoldSearchPanel({ searchRequest, onSearchInteraction }) {
       <div className="gold-search-header">
         <div>
           <p className="eyebrow">Gold Search</p>
-          <h2>Semantic article explorer</h2>
+          <h2>Gold semantic search</h2>
           <p className="panel-helper-text">
-            Search by meaning, not just exact words. This uses the Gold vector
-            layer behind the backend.
+            Search by meaning instead of exact keyword matches using the Gold
+            vector layer in the backend.
           </p>
         </div>
       </div>
 
       <form className="gold-search-form" onSubmit={handleSubmit}>
         <label className="gold-search-label" htmlFor="gold-search-input">
-          Search query
+          Semantic query
         </label>
         <div className="gold-search-row">
           <input
@@ -121,7 +113,7 @@ function GoldSearchPanel({ searchRequest, onSearchInteraction }) {
       <div className="gold-suggestions-panel">
         <span className="gold-suggestions-label">Suggested searches</span>
         <div className="gold-suggestions-list">
-          {SUGGESTED_QUERIES.map((suggestion) => {
+          {suggestions.map((suggestion) => {
             const isActive = suggestion.toLowerCase() === normalizedQuery;
 
             return (
@@ -141,7 +133,8 @@ function GoldSearchPanel({ searchRequest, onSearchInteraction }) {
 
       {status === "idle" && (
         <p className="status-text">
-          Enter a topic, concept, or phrase to run a Gold semantic search.
+          Enter a topic, phrase, or concept to explore semantically related
+          articles.
         </p>
       )}
 
