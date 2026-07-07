@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { fetchNews } from "../services/newsApi";
 import { extractKeywords } from "../utils/keywords";
@@ -9,13 +9,11 @@ function ContinentNewsCard({ continent, countries }) {
   const countryNames = Object.keys(countries);
 
   const [selectedCountry, setSelectedCountry] = useState(countryNames[0]);
-  const [headlines, setHeadlines] = useState([]);
+  const [articles, setArticles] = useState([]);
   const [status, setStatus] = useState("idle");
   const [errorMessage, setErrorMessage] = useState("");
 
-  const keywords = useMemo(() => {
-    return extractKeywords(headlines);
-  }, [headlines]);
+  const keywords = useMemo(() => extractKeywords(articles), [articles]);
 
   const loadNews = useCallback(async () => {
     const countryCode = countries[selectedCountry];
@@ -25,19 +23,22 @@ function ContinentNewsCard({ continent, countries }) {
 
     try {
       const results = await fetchNews(countryCode, selectedCountry);
-      setHeadlines(results);
+      setArticles(results);
       setStatus("success");
     } catch (error) {
-      setHeadlines([]);
+      setArticles([]);
       setErrorMessage(error.message);
       setStatus("error");
     }
   }, [countries, selectedCountry]);
 
+  useEffect(() => {
+    loadNews();
+  }, [loadNews]);
+
   const handleCountryChange = (event) => {
     setSelectedCountry(event.target.value);
-    setHeadlines([]);
-    setStatus("idle");
+    setArticles([]);
     setErrorMessage("");
   };
 
@@ -46,7 +47,7 @@ function ContinentNewsCard({ continent, countries }) {
       <div className="card-header">
         <div>
           <h2>{continent}</h2>
-          <p>Latest country news snapshot</p>
+          <p>AI-ranked coverage for a selected country</p>
         </div>
 
         <button
@@ -80,12 +81,6 @@ function ContinentNewsCard({ continent, countries }) {
         </select>
       </div>
 
-      {status === "idle" && (
-        <p className="status-text">
-          Select a country and click Refresh to load news.
-        </p>
-      )}
-
       {status === "loading" && (
         <p className="status-text">Loading news for {selectedCountry}...</p>
       )}
@@ -96,10 +91,18 @@ function ContinentNewsCard({ continent, countries }) {
 
       {status === "success" && (
         <>
-          <h3>News results for {selectedCountry}</h3>
-          <NewsList headlines={headlines} />
+          <div className="section-heading-row">
+            <h3>News results for {selectedCountry}</h3>
+            <span className="results-pill">{articles.length} articles</span>
+          </div>
+          <NewsList articles={articles} />
 
-          <h3>Top keywords</h3>
+          <div className="section-heading-row keywords-heading-row">
+            <h3>Top keywords</h3>
+            <span className="results-pill results-pill-muted">
+              {keywords.length} signals
+            </span>
+          </div>
           <KeywordChips keywords={keywords} />
         </>
       )}

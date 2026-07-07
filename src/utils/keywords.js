@@ -7,15 +7,19 @@ const stopwords = new Set([
   "an", "to", "of", "in", "on", "at", "by", "as", "is"
 ]);
 
-export function extractKeywords(headlines, limit = 5) {
+export function extractKeywords(articles, limit = 6) {
   const counts = {};
 
-  headlines.forEach((headline) => {
-    headline
+  articles.forEach((article) => {
+    const content = [article.title, article.description]
+      .filter(Boolean)
+      .join(" ");
+
+    content
       .toLowerCase()
       .split(/\s+/)
       .forEach((rawWord) => {
-        const word = rawWord.replace(/[.,:;!?()[\]"']/g, "");
+        const word = rawWord.replace(/[.,:;!?()[\]"'/-]/g, "");
 
         if (word && word.length > 2 && !stopwords.has(word)) {
           counts[word] = (counts[word] || 0) + 1;
