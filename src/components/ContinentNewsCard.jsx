@@ -1,6 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useState, useMemo, useCallback } from 'react';
 
-import { fetchNews } from "../services/newsApi";
 import { extractKeywords } from "../utils/keywords";
 import NewsList from "./NewsList";
 import KeywordChips from "./KeywordChips";
@@ -16,30 +15,27 @@ function ContinentNewsCard({ continent, countries }) {
   const keywords = useMemo(() => extractKeywords(articles), [articles]);
 
   const loadNews = useCallback(async () => {
-    const countryCode = countries[selectedCountry];
-
     setStatus("loading");
     setErrorMessage("");
 
     try {
-      const results = await fetchNews(countryCode, selectedCountry);
-      setArticles(results);
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/news?countryName=${selectedCountry}`);
+      const data = await response.json();
+
+      setArticles(data);
       setStatus("success");
     } catch (error) {
-      setArticles([]);
-      setErrorMessage(error.message);
+      console.error("Error fetching news:", error);
+      setErrorMessage(error.message || "Failed to fetch news");
       setStatus("error");
     }
-  }, [countries, selectedCountry]);
-
-  useEffect(() => {
-    loadNews();
-  }, [loadNews]);
+  }, [selectedCountry]);
 
   const handleCountryChange = (event) => {
     setSelectedCountry(event.target.value);
     setArticles([]);
     setErrorMessage("");
+    setStatus("idle");
   };
 
   return (

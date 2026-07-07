@@ -16,8 +16,7 @@ function App() {
           <h1>World News Snapshot</h1>
           <p className="hero-text">
             Track selected countries, review richer article summaries, and spot
-            recurring keywords across regions without turning this into fake
-            Google.
+            recurring keywords across regions.
           </p>
         </div>
 
