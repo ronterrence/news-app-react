@@ -31,12 +31,7 @@ function buildCountryQuery(countryName, selectedTopic) {
   return `${countryName} ${selectedTopic}`;
 }
 
-export async function fetchNews(countryCode, countryName, selectedTopic = "global") {
-  const countryQuery = buildCountryQuery(countryName, selectedTopic);
-  const url = `${API_BASE_URL}/api/news?country=${countryCode}&countryName=${encodeURIComponent(
-    countryQuery
-  )}`;
-
+async function requestJson(url) {
   const response = await fetch(url);
   const text = await response.text();
 
@@ -55,5 +50,21 @@ export async function fetchNews(countryCode, countryName, selectedTopic = "globa
     );
   }
 
+  return data;
+}
+
+export async function fetchNews(countryCode, countryName, selectedTopic = "global") {
+  const countryQuery = buildCountryQuery(countryName, selectedTopic);
+  const url = `${API_BASE_URL}/api/news?country=${countryCode}&countryName=${encodeURIComponent(
+    countryQuery
+  )}`;
+
+  const data = await requestJson(url);
+  return normalizeArticles(data).slice(0, 10);
+}
+
+export async function searchNews(query) {
+  const url = `${API_BASE_URL}/api/search?q=${encodeURIComponent(query)}`;
+  const data = await requestJson(url);
   return normalizeArticles(data).slice(0, 10);
 }

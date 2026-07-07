@@ -5,15 +5,31 @@ import { extractKeywords } from "../utils/keywords";
 import NewsList from "./NewsList";
 import KeywordChips from "./KeywordChips";
 
-function ContinentNewsCard({ continent, countries, selectedTopic }) {
+function ContinentNewsCard({
+  continent,
+  countries,
+  selectedTopic,
+  onKeywordSearch,
+  activeKeyword,
+}) {
   const countryNames = Object.keys(countries);
-
   const [selectedCountry, setSelectedCountry] = useState(countryNames[0]);
+  const semanticQuery =
+    selectedTopic === "global"
+      ? selectedCountry
+      : `${selectedCountry} ${selectedTopic}`;
+
   const [articles, setArticles] = useState([]);
   const [status, setStatus] = useState("idle");
   const [errorMessage, setErrorMessage] = useState("");
 
-  const keywords = useMemo(() => extractKeywords(articles), [articles]);
+  const keywords = useMemo(
+    () =>
+      extractKeywords(articles, {
+        excludedTerms: [selectedCountry, selectedTopic, continent, semanticQuery],
+      }),
+    [articles, continent, semanticQuery, selectedCountry, selectedTopic]
+  );
 
   const loadNews = useCallback(async () => {
     const countryCode = countries[selectedCountry];
@@ -83,6 +99,11 @@ function ContinentNewsCard({ continent, countries, selectedTopic }) {
         <span className="active-topic-pill">{selectedTopic}</span>
       </div>
 
+      <div className="query-summary-panel">
+        <span className="query-summary-label">Semantic query</span>
+        <strong className="query-summary-value">{semanticQuery}</strong>
+      </div>
+
       {status === "idle" && (
         <p className="status-text">
           Select a country and click Refresh to load news.
@@ -106,7 +127,15 @@ function ContinentNewsCard({ continent, countries, selectedTopic }) {
                 {keywords.length} signals
               </span>
             </div>
-            <KeywordChips keywords={keywords} />
+            <p className="panel-helper-text">
+              Signals are derived from headlines and metadata to avoid noisy
+              semantic document text.
+            </p>
+            <KeywordChips
+              keywords={keywords}
+              onKeywordClick={onKeywordSearch}
+              activeKeyword={activeKeyword}
+            />
           </div>
 
           <div className="articles-panel">
@@ -114,6 +143,10 @@ function ContinentNewsCard({ continent, countries, selectedTopic }) {
               <h3>News results for {selectedCountry}</h3>
               <span className="results-pill">{articles.length} articles</span>
             </div>
+            <p className="panel-helper-text">
+              Article cards use the current news response while the topic toggle
+              steers semantic retrieval.
+            </p>
             <NewsList articles={articles} />
           </div>
         </>

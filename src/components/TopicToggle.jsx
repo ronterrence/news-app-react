@@ -9,7 +9,10 @@ const TOPIC_OPTIONS = [
 function TopicToggle({ selectedTopic, onTopicChange }) {
   return (
     <aside className="topic-panel" aria-label="Topic selector">
-      <p className="topic-label">Topic</p>
+      <p className="topic-label">Semantic topic</p>
+      <p className="topic-helper-text">
+        Shapes the backend semantic query used for article retrieval.
+      </p>
       <div className="topic-toggle-list">
         {TOPIC_OPTIONS.map((topic) => {
           const isActive = topic === selectedTopic;
