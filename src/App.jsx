@@ -3,10 +3,6 @@ import ContinentNewsCard from "./components/ContinentNewsCard";
 
 function App() {
   const continents = Object.keys(countriesByContinent);
-  const totalCountries = Object.values(countriesByContinent).reduce(
-    (count, countries) => count + Object.keys(countries).length,
-    0
-  );
 
   return (
     <main className="app-shell">
@@ -18,21 +14,6 @@ function App() {
             Track selected countries, review richer article summaries, and spot
             recurring keywords across regions.
           </p>
-        </div>
-
-        <div className="hero-stats" aria-label="News dashboard overview">
-          <div className="hero-stat-card">
-            <span className="hero-stat-value">{continents.length}</span>
-            <span className="hero-stat-label">Regions</span>
-          </div>
-          <div className="hero-stat-card">
-            <span className="hero-stat-value">{totalCountries}</span>
-            <span className="hero-stat-label">Countries</span>
-          </div>
-          <div className="hero-stat-card">
-            <span className="hero-stat-value">Live</span>
-            <span className="hero-stat-label">API status</span>
-          </div>
         </div>
       </section>
 

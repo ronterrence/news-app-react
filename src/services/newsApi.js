@@ -12,10 +12,13 @@ function normalizeArticles(payload) {
       id: article.id ?? `${article.title ?? "article"}-${index}`,
       title: article.title ?? "Untitled article",
       url: article.url ?? "",
-      source: article.source_name ?? article.source ?? "Unknown source",
+      source: article.source_name ?? article.source ?? article.category ?? "Unknown source",
       publishedAt: article.published_at ?? "",
       imageUrl: article.url_to_image ?? article.image_url ?? "",
-      description: article.description ?? article.text_vectorized ?? "",
+      description:
+        article.summary ?? article.description ?? article.text_vectorized ?? "",
+      category: article.category ?? "",
+      keywords: Array.isArray(article.keywords) ? article.keywords : [],
     }))
     .filter((article) => article.title);
 }

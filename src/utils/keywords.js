@@ -11,7 +11,19 @@ export function extractKeywords(articles, limit = 6) {
   const counts = {};
 
   articles.forEach((article) => {
-    const content = [article.title, article.description]
+    if (Array.isArray(article.keywords) && article.keywords.length) {
+      article.keywords.forEach((keyword) => {
+        const normalizedKeyword = String(keyword).trim().toLowerCase();
+
+        if (normalizedKeyword) {
+          counts[normalizedKeyword] = (counts[normalizedKeyword] || 0) + 1;
+        }
+      });
+
+      return;
+    }
+
+    const content = [article.title, article.description, article.category]
       .filter(Boolean)
       .join(" ");
 
