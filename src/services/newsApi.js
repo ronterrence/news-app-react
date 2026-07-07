@@ -23,9 +23,18 @@ function normalizeArticles(payload) {
     .filter((article) => article.title);
 }
 
-export async function fetchNews(countryCode, countryName) {
+function buildCountryQuery(countryName, selectedTopic) {
+  if (!selectedTopic || selectedTopic === "global") {
+    return countryName;
+  }
+
+  return `${countryName} ${selectedTopic}`;
+}
+
+export async function fetchNews(countryCode, countryName, selectedTopic = "global") {
+  const countryQuery = buildCountryQuery(countryName, selectedTopic);
   const url = `${API_BASE_URL}/api/news?country=${countryCode}&countryName=${encodeURIComponent(
-    countryName
+    countryQuery
   )}`;
 
   const response = await fetch(url);

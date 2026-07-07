@@ -41,3 +41,6 @@ Dockerfile
 
 # Local/tool folders
 .sixth/
+
+# Local project notes
+BACKEND_ARCHITECTURE_SUMMARY.md

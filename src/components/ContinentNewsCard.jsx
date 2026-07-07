@@ -5,7 +5,7 @@ import { extractKeywords } from "../utils/keywords";
 import NewsList from "./NewsList";
 import KeywordChips from "./KeywordChips";
 
-function ContinentNewsCard({ continent, countries }) {
+function ContinentNewsCard({ continent, countries, selectedTopic }) {
   const countryNames = Object.keys(countries);
 
   const [selectedCountry, setSelectedCountry] = useState(countryNames[0]);
@@ -22,7 +22,7 @@ function ContinentNewsCard({ continent, countries }) {
     setErrorMessage("");
 
     try {
-      const results = await fetchNews(countryCode, selectedCountry);
+      const results = await fetchNews(countryCode, selectedCountry, selectedTopic);
       setArticles(results);
       setStatus("success");
     } catch (error) {
@@ -30,7 +30,7 @@ function ContinentNewsCard({ continent, countries }) {
       setErrorMessage(error.message);
       setStatus("error");
     }
-  }, [countries, selectedCountry]);
+  }, [countries, selectedCountry, selectedTopic]);
 
   const handleCountryChange = (event) => {
     setSelectedCountry(event.target.value);
@@ -78,6 +78,11 @@ function ContinentNewsCard({ continent, countries }) {
         </select>
       </div>
 
+      <div className="active-topic-row">
+        <span className="active-topic-label">Active topic</span>
+        <span className="active-topic-pill">{selectedTopic}</span>
+      </div>
+
       {status === "idle" && (
         <p className="status-text">
           Select a country and click Refresh to load news.
@@ -94,19 +99,23 @@ function ContinentNewsCard({ continent, countries }) {
 
       {status === "success" && (
         <>
-          <div className="section-heading-row">
-            <h3>News results for {selectedCountry}</h3>
-            <span className="results-pill">{articles.length} articles</span>
+          <div className="signals-panel">
+            <div className="section-heading-row keywords-heading-row">
+              <h3>Keyword signals</h3>
+              <span className="results-pill results-pill-muted">
+                {keywords.length} signals
+              </span>
+            </div>
+            <KeywordChips keywords={keywords} />
           </div>
-          <NewsList articles={articles} />
 
-          <div className="section-heading-row keywords-heading-row">
-            <h3>Keyword signals</h3>
-            <span className="results-pill results-pill-muted">
-              {keywords.length} signals
-            </span>
+          <div className="articles-panel">
+            <div className="section-heading-row">
+              <h3>News results for {selectedCountry}</h3>
+              <span className="results-pill">{articles.length} articles</span>
+            </div>
+            <NewsList articles={articles} />
           </div>
-          <KeywordChips keywords={keywords} />
         </>
       )}
     </section>
