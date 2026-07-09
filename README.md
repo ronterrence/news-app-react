@@ -1,6 +1,6 @@
 ---
 title: News App Frontend
-emoji: 📰
+emoji: 
 colorFrom: blue
 colorTo: indigo
 sdk: static
@@ -8,23 +8,27 @@ app_build_command: npm run build
 app_file: dist/index.html
 ---
 
-# Personal News App v2 — React
+# Personal News App mvp
 
-A simple React dashboard for viewing selected country news by continent.
+A React + Vite frontend for exploring country-focused news, comparing keyword signals, and running semantic search across regions.
 
-This is the React version of my Personal News App v2. It fetches headlines from NewsAPI, organizes countries by continent, displays news results, and extracts recurring keywords from the headlines.
+## What it does
+
+This app presents a world news dashboard organized by continent. Each region card lets you select a country, retrieve article matches, inspect extracted keyword signals, and pivot those signals into a broader semantic search flow.
+
+It works with a backend that returns normalized article results for both country-based retrieval and Gold semantic search.
 
 ## Features
 
-- Country selection by continent
-- News dashboard with four region cards
-- Fetches top headlines by country code
-- Falls back to broader country-name search when top headlines are empty
-- Displays up to 10 news results per country
-- Extracts top keywords from headlines
-- Refresh button with loading state
-- Countries managed through a JSON file
-- Clean React component structure
+- Country selection grouped by continent
+- Topic-aware country retrieval
+- Semantic query summary per region card
+- Keyword signal extraction from article data
+- Clickable keyword chips that launch Gold search
+- Gold semantic search for concept-based discovery
+- Dynamic suggested searches built from current keyword signals
+- Loading, empty, and error-aware result states
+- Reusable React component structure with JSON-based country configuration
 
 ## Tech Stack
 
@@ -32,17 +36,19 @@ This is the React version of my Personal News App v2. It fetches headlines from 
 - Vite
 - JavaScript
 - CSS
-- NewsAPI
+- Backend API for country retrieval and semantic search
 
 ## Project Structure
 
 ```text
-news-app-react/
+news-app-frontend/
 ├── src/
 │   ├── components/
 │   │   ├── ContinentNewsCard.jsx
+│   │   ├── GoldSearchPanel.jsx
 │   │   ├── KeywordChips.jsx
-│   │   └── NewsList.jsx
+│   │   ├── NewsList.jsx
+│   │   └── TopicToggle.jsx
 │   ├── data/
 │   │   └── countries.json
 │   ├── services/
@@ -53,43 +59,55 @@ news-app-react/
 │   ├── App.css
 │   ├── index.css
 │   └── main.jsx
-├── .env
+├── public/
 ├── package.json
 └── README.md
+```
 
-Current Version
-v2 React Baseline
+## Core UI Flow
 
-This version focuses on:
+1. Choose a global topic lens.
+2. Select a country inside a continent card.
+3. Refresh to retrieve article matches for that country/topic pairing.
+4. Review keyword signals extracted from returned articles.
+5. Click a signal chip or use a suggested query to run Gold semantic search.
 
-clean React architecture
-reusable components
-JSON-based country data
-basic news fetching
-fallback search
-keyword extraction
-simple dashboard design
-Future Improvements
+## Key Frontend Responsibilities
 
-Possible v3 features:
+- Manage selected topic state across the dashboard
+- Build semantic country queries from country + topic context
+- Extract and filter keyword signals from article results
+- Aggregate signals across continent cards into dynamic search suggestions
+- Render normalized article results from backend responses
 
-AI summaries 
-personalized news topics
-trending topic detection
-saved countries
-saved articles
-article source names and links
-category filters
-backend API proxy to protect the key
-user preferences and alerts
+## Development
 
-## Trajectory
+Install dependencies:
 
-v2:
-Basic keyword counting
+```bash
+npm install
+```
 
-v3:
-Mathematical trending score
+Run locally:
 
-v4:
-LLM-generated trend labels and summaries
+```bash
+npm run dev
+```
+
+Build for production:
+
+```bash
+npm run build
+```
+
+Lint the project:
+
+```bash
+npm run lint
+```
+
+## Notes
+
+- The frontend depends on a backend service for news retrieval and semantic search.
+- Gold search is semantic/concept-based rather than exact keyword matching.
+- Suggested searches fall back to a starter list when signal data is not yet available.
