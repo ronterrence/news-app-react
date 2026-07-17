@@ -8,25 +8,26 @@ app_build_command: npm run build
 app_file: dist/index.html
 ---
 
-# Personal News App mvp
+# Metal Intelligence
 
-A React + Vite frontend for exploring country-focused news, comparing keyword signals, and running semantic search across regions.
+A React + Vite semantic news feed for exploring articles by country, topic, and concept.
 
 ## What it does
 
-This app presents a world news dashboard organized by continent. Each region card lets you select a country, retrieve article matches, inspect extracted keyword signals, and pivot those signals into a broader semantic search flow.
+This app presents a unified world news feed. Country selection derives its continent automatically, topic filters retrieve immediately, and semantic searches can combine free text with the active country and topic context.
 
 It works with a backend that returns normalized article results for both country-based retrieval and Gold semantic search.
 
 ## Features
 
-- Country selection grouped by continent
-- Topic-aware country retrieval
-- Semantic query summary per region card
+- Unified responsive feed with grid and list layouts
+- Country selection grouped by continent with derived region context
+- Automatic topic-aware retrieval
 - Keyword signal extraction from article data
-- Clickable keyword chips that launch Gold search
-- Gold semantic search for concept-based discovery
-- Dynamic suggested searches built from current keyword signals
+- Clickable trending signals that launch semantic searches
+- Semantic search that inherits active country and topic filters
+- Relevance-order and published-date sorting
+- Truthful summary metrics derived from the current response
 - Loading, empty, and error-aware result states
 - Reusable React component structure with JSON-based country configuration
 
@@ -44,8 +45,6 @@ It works with a backend that returns normalized article results for both country
 news-app-frontend/
 ├── src/
 │   ├── components/
-│   │   ├── ContinentNewsCard.jsx
-│   │   ├── GoldSearchPanel.jsx
 │   │   ├── KeywordChips.jsx
 │   │   ├── NewsList.jsx
 │   │   └── TopicToggle.jsx
@@ -66,18 +65,18 @@ news-app-frontend/
 
 ## Core UI Flow
 
-1. Choose a global topic lens.
-2. Select a country inside a continent card.
-3. Refresh to retrieve article matches for that country/topic pairing.
-4. Review keyword signals extracted from returned articles.
-5. Click a signal chip or use a suggested query to run Gold semantic search.
+1. Select a country or topic to retrieve article matches automatically.
+2. Review the derived region, feed summary, and trending signals.
+3. Search by concept with the active country/topic context when useful.
+4. Switch between grid/list presentation or sort results by date.
+5. Click a signal chip to pivot the feed into a semantic search.
 
 ## Key Frontend Responsibilities
 
-- Manage selected topic state across the dashboard
-- Build semantic country queries from country + topic context
+- Manage country, derived continent, topic, view, and sort state
+- Build semantic queries from text + country + topic context
 - Extract and filter keyword signals from article results
-- Aggregate signals across continent cards into dynamic search suggestions
+- Ignore superseded responses across all retrieval paths
 - Render normalized article results from backend responses
 
 ## Development

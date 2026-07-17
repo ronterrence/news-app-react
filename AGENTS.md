@@ -30,8 +30,11 @@ The user-provided run associated with `raw_news_1784229879.json` completed at 20
 
 These values are a historical diagnostic snapshot, not hardcoded UI metrics or permanent availability guarantees.
 
-## Design reference
+## Unified feed design
 
-- `feed_variant_1.html` is an untracked, static visual reference containing mock data and no API or interaction logic.
-- Do not ship it as the application, import its Tailwind CDN runtime into production, or display its mocked pipeline status and relevance values as real data.
-- Its typography, color system, compact article cards, topic chips, and summary-card ideas may inform a separately approved redesign. The current application remains the functional source of truth.
+- `feed_variant_1.html` is the approved visual source for the Metal Intelligence shell, but remains a static prototype rather than production code.
+- The React application and local CSS are the implementation source of truth. Do not serve the prototype or import its Tailwind CDN, external fonts, mock profile, dead navigation, or placeholder links.
+- The unified feed starts empty. Country selection derives the continent and retrieves immediately; topic selection retrieves for the active country or searches globally when no country is selected.
+- Semantic text and trending-signal searches include active country and non-Global topic context. All retrieval paths must remain abortable and reject stale responses.
+- Summary UI may show only values derived from the current response: article count, extracted signal count, and distinct source count.
+- Do not display the prototype's relevance percentages, pipeline-progress values, update schedule, bookmarks, or operational status unless a real backend contract is added.

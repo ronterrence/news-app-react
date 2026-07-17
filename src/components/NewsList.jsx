@@ -1,13 +1,7 @@
 function formatPublishedDate(value) {
-  if (!value) {
-    return "Date unavailable";
-  }
-
+  if (!value) return "Date unavailable";
   const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return "Date unavailable";
-  }
+  if (Number.isNaN(date.getTime())) return "Date unavailable";
 
   return new Intl.DateTimeFormat("en", {
     month: "short",
@@ -17,67 +11,46 @@ function formatPublishedDate(value) {
 }
 
 function formatSnippet(value, maxLength = 180) {
-  if (!value) {
-    return "";
-  }
-
+  if (!value) return "";
   const normalizedValue = String(value)
     .replace(/^Title:\s*/i, "")
     .replace(/\s*Content:\s*/i, " ")
     .replace(/\s+/g, " ")
     .trim();
 
-  if (!normalizedValue) {
-    return "";
-  }
-
-  if (normalizedValue.length <= maxLength) {
-    return normalizedValue;
-  }
-
+  if (normalizedValue.length <= maxLength) return normalizedValue;
   return `${normalizedValue.slice(0, maxLength).trimEnd()}…`;
 }
 
-function NewsCardContent({ article }) {
-  const snippet = formatSnippet(article.description);
-
-  return (
-    <div className="news-item-content">
-      <h4 className="news-title">{article.title}</h4>
-
-      <div className="news-meta-row">
-        <span className="news-source">{article.source}</span>
-        <span className="news-date">{formatPublishedDate(article.publishedAt)}</span>
-      </div>
-
-      {snippet && <p className="news-snippet">{snippet}</p>}
-    </div>
-  );
-}
-
-function NewsList({ articles }) {
+function NewsList({ articles, viewMode = "grid" }) {
   if (!articles.length) {
     return <p className="empty-text">No news results found.</p>;
   }
 
   return (
-    <div className="news-list">
-      {articles.map((article) => (
-        <article key={article.id} className="news-item-card">
-          {article.url ? (
-            <a
-              className="news-card-link"
-              href={article.url}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <NewsCardContent article={article} />
-            </a>
-          ) : (
-            <NewsCardContent article={article} />
-          )}
-        </article>
-      ))}
+    <div className={`news-list news-list-${viewMode}`}>
+      {articles.map((article) => {
+        const snippet = formatSnippet(article.description);
+
+        return (
+          <article key={article.id} className="news-item-card">
+            <div className="news-card-topline">
+              {article.category ? <span className="category-pill">{article.category}</span> : <span />}
+              <span className="news-date">{formatPublishedDate(article.publishedAt)}</span>
+            </div>
+            <h3 className="news-title">{article.title}</h3>
+            {snippet && <p className="news-snippet">{snippet}</p>}
+            <div className="news-card-footer">
+              <span className="news-source">{article.source}</span>
+              {article.url && (
+                <a href={article.url} target="_blank" rel="noreferrer">
+                  Read article <span aria-hidden="true">→</span>
+                </a>
+              )}
+            </div>
+          </article>
+        );
+      })}
     </div>
   );
 }

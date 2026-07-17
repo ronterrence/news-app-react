@@ -1,139 +1,403 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import countriesByContinent from "./data/countries.json";
-import ContinentNewsCard from "./components/ContinentNewsCard";
-import GoldSearchPanel from "./components/GoldSearchPanel";
+import KeywordChips from "./components/KeywordChips";
+import NewsList from "./components/NewsList";
 import TopicToggle from "./components/TopicToggle";
+import { fetchNews, searchNews } from "./services/newsApi";
+import { extractKeywords } from "./utils/keywords";
 
-const FALLBACK_SUGGESTIONS = [
-  "technology and software innovation",
-  "global business markets",
-  "science research breakthrough",
-  "sports competition",
-  "renewable energy policy",
-];
+const EMPTY_ARTICLES = [];
 
-function buildDynamicSuggestions(signalsByContinent, selectedTopic) {
-  const allSignals = Object.values(signalsByContinent)
-    .flat()
+function buildCountryIndex(countryGroups) {
+  return Object.entries(countryGroups).reduce((index, [continent, countries]) => {
+    Object.entries(countries).forEach(([country, code]) => {
+      index[country] = { code, continent };
+    });
+    return index;
+  }, {});
+}
+
+function buildSearchQuery(searchTerm, country, topic) {
+  return [searchTerm, country, topic === "global" ? "" : topic]
     .filter(Boolean)
-    .map((signal) => String(signal).trim().toLowerCase());
-
-  const uniqueSignals = [...new Set(allSignals)].slice(0, 8);
-
-  if (!uniqueSignals.length) {
-    return FALLBACK_SUGGESTIONS;
-  }
-
-  const suggestionSet = new Set();
-
-  uniqueSignals.forEach((signal, index) => {
-    suggestionSet.add(signal);
-
-    if (selectedTopic !== "global") {
-      suggestionSet.add(`${selectedTopic} ${signal}`);
-    }
-
-    const nextSignal = uniqueSignals[index + 1];
-    if (nextSignal) {
-      suggestionSet.add(`${signal} ${nextSignal}`);
-    }
-  });
-
-  const suggestions = [...suggestionSet]
-    .map((suggestion) => suggestion.trim())
-    .filter((suggestion) => suggestion.length > 2)
-    .slice(0, 8);
-
-  return suggestions.length ? suggestions : FALLBACK_SUGGESTIONS;
+    .join(" ");
 }
 
 function App() {
-  const continents = Object.keys(countriesByContinent);
+  const countryIndex = useMemo(() => buildCountryIndex(countriesByContinent), []);
+  const [selectedCountry, setSelectedCountry] = useState("");
   const [selectedTopic, setSelectedTopic] = useState("global");
-  const [goldQuery, setGoldQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [activeKeyword, setActiveKeyword] = useState("");
-  const [signalsByContinent, setSignalsByContinent] = useState({});
-  const goldSearchPanelRef = useRef(null);
+  const [viewMode, setViewMode] = useState("grid");
+  const [sortMode, setSortMode] = useState("relevance");
+  const [requestState, setRequestState] = useState({
+    status: "idle",
+    articles: EMPTY_ARTICLES,
+    errorMessage: "",
+    submittedLabel: "",
+  });
+  const abortControllerRef = useRef(null);
+  const requestSequenceRef = useRef(0);
 
-  const dynamicSuggestions = useMemo(
-    () => buildDynamicSuggestions(signalsByContinent, selectedTopic),
-    [selectedTopic, signalsByContinent]
-  );
+  const selectedContinent = selectedCountry
+    ? countryIndex[selectedCountry]?.continent ?? ""
+    : "";
 
-  const handleKeywordSearch = (keyword) => {
-    setActiveKeyword(keyword);
-    setGoldQuery(keyword);
-    goldSearchPanelRef.current?.search(keyword);
+  const executeRetrieval = useCallback(
+    async ({ country = selectedCountry, topic = selectedTopic, term = "" }) => {
+      abortControllerRef.current?.abort();
+      const sequence = ++requestSequenceRef.current;
+      const trimmedTerm = term.trim();
 
-    const goldPanel = document.getElementById("gold-search-panel");
-    goldPanel?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
-
-  const handleGoldSearchInteraction = () => {
-    setActiveKeyword("");
-  };
-
-  const handleSignalsChange = useCallback((continent, keywords) => {
-    const nextSignals = keywords.map((keyword) => keyword.word);
-
-    setSignalsByContinent((current) => {
-      const currentSignals = current[continent] ?? [];
-      const isUnchanged =
-        currentSignals.length === nextSignals.length &&
-        currentSignals.every((signal, index) => signal === nextSignals[index]);
-
-      if (isUnchanged) {
-        return current;
+      if (!country && topic === "global" && !trimmedTerm) {
+        setRequestState({
+          status: "idle",
+          articles: EMPTY_ARTICLES,
+          errorMessage: "",
+          submittedLabel: "",
+        });
+        return;
       }
 
-      return {
-        ...current,
-        [continent]: nextSignals,
-      };
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+      const semanticQuery = buildSearchQuery(trimmedTerm, country, topic);
+      const submittedLabel = semanticQuery || "Global news";
+
+      setRequestState({
+        status: "loading",
+        articles: EMPTY_ARTICLES,
+        errorMessage: "",
+        submittedLabel,
+      });
+
+      try {
+        let results;
+
+        if (trimmedTerm) {
+          results = await searchNews(semanticQuery, { signal: controller.signal });
+        } else if (country) {
+          results = await fetchNews(
+            countryIndex[country].code,
+            country,
+            topic,
+            { signal: controller.signal }
+          );
+        } else {
+          results = await searchNews(topic, { signal: controller.signal });
+        }
+
+        if (sequence !== requestSequenceRef.current) {
+          return;
+        }
+
+        setRequestState({
+          status: "success",
+          articles: results,
+          errorMessage: "",
+          submittedLabel,
+        });
+      } catch (error) {
+        if (error.name === "AbortError" || sequence !== requestSequenceRef.current) {
+          return;
+        }
+
+        setRequestState({
+          status: "error",
+          articles: EMPTY_ARTICLES,
+          errorMessage: error.message,
+          submittedLabel,
+        });
+      }
+    },
+    [countryIndex, selectedCountry, selectedTopic]
+  );
+
+  useEffect(
+    () => () => {
+      requestSequenceRef.current += 1;
+      abortControllerRef.current?.abort();
+    },
+    []
+  );
+
+  const handleCountryChange = (event) => {
+    const country = event.target.value;
+    setSelectedCountry(country);
+    setSearchQuery("");
+    setActiveKeyword("");
+    executeRetrieval({ country, topic: selectedTopic });
+  };
+
+  const handleTopicChange = (topic) => {
+    setSelectedTopic(topic);
+    setSearchQuery("");
+    setActiveKeyword("");
+    executeRetrieval({ country: selectedCountry, topic });
+  };
+
+  const handleSearchSubmit = (event) => {
+    event.preventDefault();
+
+    if (!searchQuery.trim()) {
+      setRequestState({
+        status: "error",
+        articles: EMPTY_ARTICLES,
+        errorMessage: "Enter a semantic search query first.",
+        submittedLabel: "",
+      });
+      return;
+    }
+
+    setActiveKeyword("");
+    executeRetrieval({ term: searchQuery });
+  };
+
+  const handleKeywordSearch = (keyword) => {
+    setSearchQuery(keyword);
+    setActiveKeyword(keyword);
+    executeRetrieval({ term: keyword });
+    document.getElementById("feed")?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
     });
-  }, []);
+  };
+
+  const handleReset = () => {
+    requestSequenceRef.current += 1;
+    abortControllerRef.current?.abort();
+    setSelectedCountry("");
+    setSelectedTopic("global");
+    setSearchQuery("");
+    setActiveKeyword("");
+    setSortMode("relevance");
+    setRequestState({
+      status: "idle",
+      articles: EMPTY_ARTICLES,
+      errorMessage: "",
+      submittedLabel: "",
+    });
+  };
+
+  const keywords = useMemo(
+    () =>
+      extractKeywords(requestState.articles, {
+        excludedTerms: [selectedCountry, selectedTopic],
+      }),
+    [requestState.articles, selectedCountry, selectedTopic]
+  );
+
+  const sourceCount = useMemo(
+    () =>
+      new Set(
+        requestState.articles
+          .map((article) => article.source?.trim())
+          .filter(Boolean)
+      ).size,
+    [requestState.articles]
+  );
+
+  const displayedArticles = useMemo(() => {
+    if (sortMode === "relevance") {
+      return requestState.articles;
+    }
+
+    return requestState.articles
+      .map((article, index) => ({ article, index }))
+      .sort((left, right) => {
+        const leftTime = new Date(left.article.publishedAt).getTime();
+        const rightTime = new Date(right.article.publishedAt).getTime();
+        const leftValid = !Number.isNaN(leftTime);
+        const rightValid = !Number.isNaN(rightTime);
+
+        if (leftValid && rightValid) return rightTime - leftTime;
+        if (leftValid) return -1;
+        if (rightValid) return 1;
+        return left.index - right.index;
+      })
+      .map(({ article }) => article);
+  }, [requestState.articles, sortMode]);
 
   return (
-    <main className="app-shell">
-      <section className="hero-section">
-        <div>
-          <p className="eyebrow">Personal News App v2</p>
-          <h1>World News Snapshot</h1>
-          <p className="hero-text">
-            Explore country-focused news views, compare keyword signals, and use
-            a semantic topic lens to guide retrieval across regions.
-          </p>
+    <div className="app-frame">
+      <aside className="side-nav" aria-label="Primary navigation">
+        <div className="brand-block">
+          <span className="brand-mark" aria-hidden="true">MI</span>
+          <div>
+            <strong>Metal Intelligence</strong>
+            <span>Semantic news desk</span>
+          </div>
         </div>
+        <nav className="section-nav">
+          <a href="#feed">Feed</a>
+          <a href="#topics">Topics</a>
+          <a href="#semantic-search">Semantic Search</a>
+        </nav>
+        <div className="pipeline-note">
+          <span className="status-dot" aria-hidden="true" />
+          Semantic index supplied by the backend
+        </div>
+      </aside>
 
-        <TopicToggle
-          selectedTopic={selectedTopic}
-          onTopicChange={setSelectedTopic}
-        />
-      </section>
+      <div className="content-shell">
+        <header className="top-bar">
+          <a className="mobile-brand" href="#feed">Metal Intelligence</a>
+          <form className="top-search" id="semantic-search" onSubmit={handleSearchSubmit}>
+            <label className="sr-only" htmlFor="semantic-query">Semantic search</label>
+            <input
+              id="semantic-query"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="Search articles, topics, keywords…"
+            />
+            <button type="submit" disabled={requestState.status === "loading"}>
+              Search
+            </button>
+          </form>
+          <button className="reset-button" type="button" onClick={handleReset}>
+            Reset
+          </button>
+        </header>
 
-      <GoldSearchPanel
-        ref={goldSearchPanelRef}
-        query={goldQuery}
-        onQueryChange={setGoldQuery}
-        onSearchInteraction={handleGoldSearchInteraction}
-        suggestions={dynamicSuggestions}
-      />
+        <main className="feed-canvas" id="feed">
+          <section className="page-intro" aria-labelledby="page-title">
+            <div>
+              <p className="eyebrow">Intelligence feed</p>
+              <h1 id="page-title">World News Snapshot</h1>
+              <p>
+                Explore the semantic news index by country, topic, or concept.
+              </p>
+            </div>
+            {selectedContinent && (
+              <div className="region-context" aria-live="polite">
+                <span>Region</span>
+                <strong>{selectedContinent}</strong>
+              </div>
+            )}
+          </section>
 
-      <section className="dashboard-grid">
-        {continents.map((continent) => (
-          <ContinentNewsCard
-            key={continent}
-            continent={continent}
-            countries={countriesByContinent[continent]}
-            selectedTopic={selectedTopic}
-            onKeywordSearch={handleKeywordSearch}
-            activeKeyword={activeKeyword}
-            onSignalsChange={handleSignalsChange}
-          />
-        ))}
-      </section>
-    </main>
+          <section className="filter-panel" id="topics" aria-labelledby="filter-title">
+            <div className="filter-heading">
+              <div>
+                <p className="eyebrow">Retrieval context</p>
+                <h2 id="filter-title">Filter the feed</h2>
+              </div>
+              <p>Selections load automatically.</p>
+            </div>
+            <div className="filter-grid">
+              <label className="country-control" htmlFor="country-select">
+                <span>Country</span>
+                <select
+                  id="country-select"
+                  value={selectedCountry}
+                  onChange={handleCountryChange}
+                >
+                  <option value="">Choose a country</option>
+                  {Object.entries(countriesByContinent).map(([continent, countries]) => (
+                    <optgroup key={continent} label={continent}>
+                      {Object.keys(countries).map((country) => (
+                        <option key={country} value={country}>{country}</option>
+                      ))}
+                    </optgroup>
+                  ))}
+                </select>
+              </label>
+              <TopicToggle
+                selectedTopic={selectedTopic}
+                onTopicChange={handleTopicChange}
+              />
+            </div>
+          </section>
+
+          <section className="stats-grid" aria-label="Current feed summary">
+            <div className="stat-card">
+              <span className="stat-icon stat-icon-dark" aria-hidden="true">A</span>
+              <div><strong>{requestState.articles.length}</strong><span>Articles</span></div>
+            </div>
+            <div className="stat-card">
+              <span className="stat-icon stat-icon-blue" aria-hidden="true">T</span>
+              <div><strong>{keywords.length}</strong><span>Trending signals</span></div>
+            </div>
+            <div className="stat-card">
+              <span className="stat-icon stat-icon-gold" aria-hidden="true">S</span>
+              <div><strong>{sourceCount}</strong><span>Sources</span></div>
+            </div>
+          </section>
+
+          {keywords.length > 0 && (
+            <section className="trending-panel" aria-labelledby="trending-title">
+              <div className="section-title-row">
+                <div>
+                  <p className="eyebrow">Live signals</p>
+                  <h2 id="trending-title">Trending topics</h2>
+                </div>
+                <span>Search any signal</span>
+              </div>
+              <KeywordChips
+                keywords={keywords}
+                onKeywordClick={handleKeywordSearch}
+                activeKeyword={activeKeyword}
+              />
+            </section>
+          )}
+
+          <section className="feed-section" aria-labelledby="results-title">
+            <div className="feed-toolbar">
+              <div>
+                <p className="eyebrow">Current results</p>
+                <h2 id="results-title">
+                  {requestState.submittedLabel || "Your feed is ready"}
+                </h2>
+              </div>
+              <div className="view-tools">
+                <div className="view-toggle" aria-label="Article layout">
+                  <button
+                    type="button"
+                    aria-pressed={viewMode === "grid"}
+                    onClick={() => setViewMode("grid")}
+                  >Grid</button>
+                  <button
+                    type="button"
+                    aria-pressed={viewMode === "list"}
+                    onClick={() => setViewMode("list")}
+                  >List</button>
+                </div>
+                <label>
+                  <span className="sr-only">Sort articles</span>
+                  <select value={sortMode} onChange={(event) => setSortMode(event.target.value)}>
+                    <option value="relevance">Relevance</option>
+                    <option value="date">Date</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+
+            {requestState.status === "idle" && (
+              <div className="empty-state">
+                <strong>Start with a country, topic, or semantic search.</strong>
+                <p>No request is sent until you choose a retrieval context.</p>
+              </div>
+            )}
+            {requestState.status === "loading" && (
+              <div className="loading-state" role="status" aria-live="polite">
+                <span className="loading-bar" aria-hidden="true" />
+                Searching the semantic index for {requestState.submittedLabel}…
+              </div>
+            )}
+            {requestState.status === "error" && (
+              <p className="error-text" role="alert">Error: {requestState.errorMessage}</p>
+            )}
+            {requestState.status === "success" && (
+              <div role="status" aria-live="polite">
+                <NewsList articles={displayedArticles} viewMode={viewMode} />
+              </div>
+            )}
+          </section>
+        </main>
+      </div>
+    </div>
   );
 }
 
