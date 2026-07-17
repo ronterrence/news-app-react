@@ -1,70 +1,116 @@
-import { useEffect, useState } from "react";
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
 
 import { searchNews } from "../services/newsApi";
 import NewsList from "./NewsList";
 
-function GoldSearchPanel({ searchRequest, onSearchInteraction, suggestions = [] }) {
-  const [query, setQuery] = useState("");
-  const [submittedQuery, setSubmittedQuery] = useState("");
-  const [articles, setArticles] = useState([]);
-  const [status, setStatus] = useState("idle");
-  const [errorMessage, setErrorMessage] = useState("");
+const IDLE_REQUEST = {
+  status: "idle",
+  submittedQuery: "",
+  articles: [],
+  errorMessage: "",
+};
+
+const GoldSearchPanel = forwardRef(function GoldSearchPanel(
+  { query, onQueryChange, onSearchInteraction, suggestions = [] },
+  ref
+) {
+  const [requestState, setRequestState] = useState(IDLE_REQUEST);
+  const abortControllerRef = useRef(null);
+  const requestSequenceRef = useRef(0);
   const normalizedQuery = query.trim().toLowerCase();
 
-  const runSearch = async (rawQuery) => {
+  const runSearch = useCallback(async (rawQuery) => {
     const trimmedQuery = rawQuery.trim();
 
+    abortControllerRef.current?.abort();
+    const requestSequence = ++requestSequenceRef.current;
+
     if (!trimmedQuery) {
-      setStatus("error");
-      setErrorMessage("Enter a semantic search query first.");
-      setArticles([]);
+      setRequestState({
+        status: "error",
+        submittedQuery: "",
+        articles: [],
+        errorMessage: "Enter a semantic search query first.",
+      });
       return;
     }
 
-    setStatus("loading");
-    setErrorMessage("");
-    setSubmittedQuery(trimmedQuery);
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+    setRequestState({
+      status: "loading",
+      submittedQuery: trimmedQuery,
+      articles: [],
+      errorMessage: "",
+    });
 
     try {
-      const results = await searchNews(trimmedQuery);
-      setArticles(results);
-      setStatus("success");
+      const results = await searchNews(trimmedQuery, {
+        signal: controller.signal,
+      });
+
+      if (requestSequence !== requestSequenceRef.current) {
+        return;
+      }
+
+      setRequestState({
+        status: "success",
+        submittedQuery: trimmedQuery,
+        articles: results,
+        errorMessage: "",
+      });
     } catch (error) {
-      setArticles([]);
-      setErrorMessage(error.message);
-      setStatus("error");
+      if (error.name === "AbortError" || requestSequence !== requestSequenceRef.current) {
+        return;
+      }
+
+      setRequestState({
+        status: "error",
+        submittedQuery: trimmedQuery,
+        articles: [],
+        errorMessage: error.message,
+      });
     }
-  };
+  }, []);
 
-  useEffect(() => {
-    if (!searchRequest?.query) {
-      return;
-    }
+  useImperativeHandle(ref, () => ({ search: runSearch }), [runSearch]);
 
-    setQuery(searchRequest.query);
-    runSearch(searchRequest.query);
-  }, [searchRequest]);
+  useEffect(
+    () => () => {
+      requestSequenceRef.current += 1;
+      abortControllerRef.current?.abort();
+    },
+    []
+  );
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = (event) => {
     event.preventDefault();
     onSearchInteraction?.();
-    await runSearch(query);
+    runSearch(query);
   };
 
-  const handleSuggestionClick = async (suggestion) => {
+  const handleSuggestionClick = (suggestion) => {
     onSearchInteraction?.();
-    setQuery(suggestion);
-    await runSearch(suggestion);
+    onQueryChange(suggestion);
+    runSearch(suggestion);
   };
 
   const handleClearSearch = () => {
     onSearchInteraction?.();
-    setQuery("");
-    setSubmittedQuery("");
-    setArticles([]);
-    setErrorMessage("");
-    setStatus("idle");
+    requestSequenceRef.current += 1;
+    abortControllerRef.current?.abort();
+    onQueryChange("");
+    setRequestState(IDLE_REQUEST);
   };
+
+  const { status, submittedQuery, articles, errorMessage } = requestState;
 
   return (
     <section className="gold-search-panel" id="gold-search-panel">
@@ -89,7 +135,7 @@ function GoldSearchPanel({ searchRequest, onSearchInteraction, suggestions = [] 
             className="gold-search-input"
             type="text"
             value={query}
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event) => onQueryChange(event.target.value)}
             placeholder="Try: technology and software innovation"
           />
           <button
@@ -103,7 +149,6 @@ function GoldSearchPanel({ searchRequest, onSearchInteraction, suggestions = [] 
             className="secondary-button gold-clear-button"
             type="button"
             onClick={handleClearSearch}
-            disabled={status === "loading"}
           >
             Clear search
           </button>
@@ -120,6 +165,7 @@ function GoldSearchPanel({ searchRequest, onSearchInteraction, suggestions = [] 
               <button
                 key={suggestion}
                 type="button"
+                aria-pressed={isActive}
                 className={`gold-suggestion-chip${isActive ? " is-active" : ""}`}
                 onClick={() => handleSuggestionClick(suggestion)}
                 disabled={status === "loading"}
@@ -138,10 +184,18 @@ function GoldSearchPanel({ searchRequest, onSearchInteraction, suggestions = [] 
         </p>
       )}
 
-      {status === "error" && <p className="error-text">Error: {errorMessage}</p>}
+      {status === "loading" && (
+        <p className="status-text" role="status" aria-live="polite">
+          Searching for {submittedQuery}…
+        </p>
+      )}
+
+      {status === "error" && (
+        <p className="error-text" role="alert">Error: {errorMessage}</p>
+      )}
 
       {status === "success" && (
-        <div className="gold-search-results">
+        <div className="gold-search-results" role="status" aria-live="polite">
           <div className="section-heading-row">
             <h3>Results for “{submittedQuery}”</h3>
             <span className="results-pill">{articles.length} articles</span>
@@ -151,6 +205,6 @@ function GoldSearchPanel({ searchRequest, onSearchInteraction, suggestions = [] 
       )}
     </section>
   );
-}
+});
 
 export default GoldSearchPanel;

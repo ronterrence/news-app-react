@@ -17,6 +17,7 @@ function KeywordChips({ keywords, onKeywordClick, activeKeyword }) {
         return isClickable ? (
           <button
             type="button"
+            aria-pressed={isActive}
             className={className}
             key={item.word}
             onClick={() => onKeywordClick(item.word)}

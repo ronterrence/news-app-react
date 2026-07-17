@@ -398,6 +398,11 @@ select {
   gap: 14px;
 }
 
+.continent-results {
+  display: grid;
+  gap: 18px;
+}
+
 .keywords-heading-row {
   margin-top: 0;
 }

@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Metal Intelligence - World News Snapshot</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&amp;family=Inter:wght@100..900&amp;family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-surface-variant": "#45474c",
+                        "secondary-fixed-dim": "#b7c8e1",
+                        "tertiary-fixed-dim": "#dbc3a0",
+                        "tertiary-container": "#2d2008",
+                        "surface-container-lowest": "#ffffff",
+                        "background-subtle": "#F8FAFC",
+                        "surface-tint": "#565e72",
+                        "gold": "#D4AF37",
+                        "outline": "#76777d",
+                        "on-surface": "#1b1b1d",
+                        "on-primary-fixed": "#131b2c",
+                        "primary-container": "#1a2233",
+                        "on-tertiary-fixed": "#261904",
+                        "surface-bright": "#fcf8fa",
+                        "surface-dim": "#dcd9db",
+                        "on-secondary-container": "#54647a",
+                        "on-secondary-fixed": "#0b1c30",
+                        "inverse-surface": "#303032",
+                        "surface": "#fcf8fa",
+                        "border-low-contrast": "#E2E8F0",
+                        "tertiary-fixed": "#f8dfba",
+                        "secondary-container": "#d0e1fb",
+                        "silver": "#94A3B8",
+                        "on-error": "#ffffff",
+                        "on-primary-container": "#81899e",
+                        "secondary": "#505f76",
+                        "error-container": "#ffdad6",
+                        "surface-container-low": "#f6f3f4",
+                        "primary-fixed-dim": "#bec6dd",
+                        "bronze": "#CD7F32",
+                        "inverse-primary": "#bec6dd",
+                        "surface-container-highest": "#e4e2e3",
+                        "on-background": "#1b1b1d",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-container": "#9b8766",
+                        "surface-container": "#f0edef",
+                        "primary": "#040c1c",
+                        "on-error-container": "#93000a",
+                        "on-secondary": "#ffffff",
+                        "secondary-fixed": "#d3e4fe",
+                        "background": "#fcf8fa",
+                        "surface-variant": "#e4e2e3",
+                        "on-tertiary-fixed-variant": "#544429",
+                        "tertiary": "#130a00",
+                        "error": "#ba1a1a",
+                        "surface-container-high": "#eae7e9",
+                        "inverse-on-surface": "#f3f0f1",
+                        "on-primary-fixed-variant": "#3f4759",
+                        "primary-fixed": "#dae2fa",
+                        "outline-variant": "#c6c6cd",
+                        "on-secondary-fixed-variant": "#38485d",
+                        "on-tertiary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "gutter-grid": "1.5rem",
+                        "stack-sm": "0.5rem",
+                        "stack-md": "1rem",
+                        "margin-page": "2rem",
+                        "stack-lg": "2rem"
+                    },
+                    "fontFamily": {
+                        "body-sm": ["Inter"],
+                        "data-mono": ["JetBrains Mono"],
+                        "body-lg": ["Inter"],
+                        "display-xl": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "label-caps": ["JetBrains Mono"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "headline-lg-mobile": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "data-mono": ["13px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "display-xl": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-subtle text-on-surface font-body-sm text-body-sm min-h-screen">
+<!-- Shared Component: SideNavBar -->
+<nav class="bg-background dark:bg-background text-primary dark:text-primary-fixed font-body-lg text-body-lg h-screen w-64 fixed left-0 top-0 border-r border-border-low-contrast dark:border-outline-variant flat no shadows flex flex-col h-full py-stack-lg z-50">
+<div class="px-gutter-grid mb-stack-lg">
+<div class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed mb-1">Metal Intelligence</div>
+<div class="font-label-caps text-label-caps text-on-surface-variant">Data Maturity v4.2</div>
+</div>
+<button class="mx-gutter-grid mb-stack-lg bg-primary text-on-primary py-2 px-4 rounded-xl font-headline-md text-body-sm font-bold shadow-sm hover:opacity-90 transition-opacity">
+            New Analysis
+        </button>
+<div class="flex-1 overflow-y-auto space-y-1">
+<!-- Active Tab: Feed -->
+<a class="text-primary dark:text-primary-fixed font-bold border-r-4 border-gold bg-surface-container-low dark:bg-surface-container-lowest flex items-center gap-3 px-gutter-grid py-3 hover:bg-surface-container dark:hover:bg-surface-container-highest transition-colors duration-200 Active: scale-[0.99] transition-transform duration-150" href="#">
+<span class="material-symbols-outlined">rss_feed</span>
+                Feed
+            </a>
+<a class="text-on-surface-variant dark:text-on-surface-variant flex items-center gap-3 px-gutter-grid py-3 hover:bg-surface-container dark:hover:bg-surface-container-highest transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">analytics</span>
+                Deep Dive
+            </a>
+<a class="text-on-surface-variant dark:text-on-surface-variant flex items-center gap-3 px-gutter-grid py-3 hover:bg-surface-container dark:hover:bg-surface-container-highest transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">psychology</span>
+                Intelligence
+            </a>
+<a class="text-on-surface-variant dark:text-on-surface-variant flex items-center gap-3 px-gutter-grid py-3 hover:bg-surface-container dark:hover:bg-surface-container-highest transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">query_stats</span>
+                Insights
+            </a>
+<a class="text-on-surface-variant dark:text-on-surface-variant flex items-center gap-3 px-gutter-grid py-3 hover:bg-surface-container dark:hover:bg-surface-container-highest transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">settings</span>
+                Settings
+            </a>
+</div>
+</nav>
+<!-- Shared Component: TopNavBar -->
+<header class="bg-surface-container-lowest dark:bg-surface-container-lowest text-primary dark:text-primary-fixed font-headline-md text-headline-md docked full-width top-0 h-16 ml-64 border-b border-border-low-contrast dark:border-outline-variant flat no shadows flex justify-between items-center px-gutter-grid w-[calc(100%-16rem)] ml-64 fixed z-40">
+<div class="flex items-center gap-4">
+<!-- Search bar on left logic per JSON -->
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+<input class="pl-10 pr-4 py-1.5 bg-background-subtle border border-border-low-contrast rounded-full font-body-sm text-body-sm focus:outline-none focus:border-primary w-[400px]" placeholder="Search articles, topics, keywords..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="bg-surface-container-lowest border border-border-low-contrast px-4 py-1.5 rounded-full font-body-sm text-body-sm font-semibold flex items-center gap-2 hover:bg-background-subtle transition-colors">
+<span class="material-symbols-outlined text-[18px]">refresh</span> Refresh
+</button>
+<div class="h-6 w-px bg-border-low-contrast mx-2"></div>
+<div class="flex items-center gap-2 font-body-sm text-xs text-on-surface-variant">
+    Last updated: 2 min ago <span class="w-2 h-2 rounded-full bg-green-500"></span>
+</div>
+<button class="text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors ml-4">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors">
+<span class="material-symbols-outlined">history</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-secondary-fixed flex items-center justify-center border border-border-low-contrast overflow-hidden">
+<img alt="User Analyst Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtz88FSLI2Qz0BKtDMOcCU68mxDR9Rig8eHCK4hlw_0hfmUdZtHuUIZED3hjCPvuRsWehH9-eAkZtMEMEFDMHw85GbZ0GmCZ12xm8oYQRjzhRvuV-5uI_yAzISAx03FSANpYcYRblrQuixY2rYAVEnXA6MHm9AJZLqeCyupkOcKKJhUb5YfhW8pj1bwRHkcyvDOCO2ImnrgR-yF0Q4VxiazfzHMZAXAo00_ycatEXAim4VFkbE2m06MRSk1Blohm2k_Bt6lMl1uLMY"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-24 pb-20 px-page-margin min-h-screen">
+<div class="max-w-7xl mx-auto space-y-6">
+<!-- Stats Row -->
+<section class="grid grid-cols-1 md:grid-cols-4 gap-4">
+<!-- Box 1 -->
+<div class="bg-surface-container-lowest border border-border-low-contrast rounded-xl p-6 flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-primary flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined text-2xl">article</span>
+</div>
+<div>
+<div class="font-headline-lg text-headline-lg-mobile text-primary font-bold">42</div>
+<div class="font-headline-md text-sm text-primary font-semibold">Articles</div>
+<div class="font-body-sm text-xs text-on-surface-variant">Found today</div>
+</div>
+</div>
+<!-- Box 2 -->
+<div class="bg-surface-container-lowest border border-border-low-contrast rounded-xl p-6 flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-green-500 flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-2xl">sell</span>
+</div>
+<div>
+<div class="font-headline-lg text-headline-lg-mobile text-primary font-bold">10</div>
+<div class="font-headline-md text-sm text-primary font-semibold">Trending topics</div>
+<div class="font-body-sm text-xs text-on-surface-variant">Across all articles</div>
+</div>
+</div>
+<!-- Box 3 -->
+<div class="bg-surface-container-lowest border border-border-low-contrast rounded-xl p-6 flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-purple-500 flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-2xl">group</span>
+</div>
+<div>
+<div class="font-headline-lg text-headline-lg-mobile text-primary font-bold">5</div>
+<div class="font-headline-md text-sm text-primary font-semibold">Sources</div>
+<div class="font-body-sm text-xs text-on-surface-variant">Active sources</div>
+</div>
+</div>
+<!-- Box 4 -->
+<div class="bg-surface-container-lowest border border-border-low-contrast rounded-xl p-6 flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-gold flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-2xl">schedule</span>
+</div>
+<div>
+<div class="font-headline-md text-[20px] leading-tight font-bold text-primary">2 min ago</div>
+<div class="font-headline-md text-sm text-primary font-semibold">Last updated</div>
+<div class="font-body-sm text-xs text-on-surface-variant">Next update in 8 min</div>
+</div>
+</div>
+</section>
+<!-- Trending Topics -->
+<section class="bg-surface-container-lowest border border-border-low-contrast rounded-xl p-6">
+<div class="flex justify-between items-center mb-4">
+<h2 class="font-headline-md text-headline-md text-primary">Trending topics</h2>
+<button class="text-primary font-body-sm text-sm border border-border-low-contrast rounded-full px-4 py-1.5 hover:bg-background-subtle transition-colors">View all topics</button>
+</div>
+<div class="flex flex-wrap gap-2">
+<button class="flex items-center bg-[#1D4ED8] text-white rounded-full px-3 py-1.5 font-body-sm text-sm transition-opacity hover:opacity-90">
+<span>#ArtificialIntelligence</span>
+<span class="ml-2 bg-white/20 px-2 py-0.5 rounded-full text-xs">12</span>
+</button>
+<button class="flex items-center bg-[#EFF6FF] text-[#1D4ED8] rounded-full px-3 py-1.5 font-body-sm text-sm transition-colors hover:bg-blue-100">
+<span>#OpenAI</span>
+<span class="ml-2 font-semibold">8</span>
+</button>
+<button class="flex items-center bg-[#EFF6FF] text-[#1D4ED8] rounded-full px-3 py-1.5 font-body-sm text-sm transition-colors hover:bg-blue-100">
+<span>#Cybersecurity</span>
+<span class="ml-2 font-semibold">7</span>
+</button>
+<button class="flex items-center bg-[#EFF6FF] text-[#1D4ED8] rounded-full px-3 py-1.5 font-body-sm text-sm transition-colors hover:bg-blue-100">
+<span>#Startups</span>
+<span class="ml-2 font-semibold">6</span>
+</button>
+<button class="flex items-center bg-[#EFF6FF] text-[#1D4ED8] rounded-full px-3 py-1.5 font-body-sm text-sm transition-colors hover:bg-blue-100">
+<span>#ClimateChange</span>
+<span class="ml-2 font-semibold">5</span>
+</button>
+<button class="flex items-center bg-[#EFF6FF] text-[#1D4ED8] rounded-full px-3 py-1.5 font-body-sm text-sm transition-colors hover:bg-blue-100">
+<span>#Economy</span>
+<span class="ml-2 font-semibold">4</span>
+</button>
+<button class="flex items-center bg-[#EFF6FF] text-[#1D4ED8] rounded-full px-3 py-1.5 font-body-sm text-sm transition-colors hover:bg-blue-100">
+<span>#DataScience</span>
+<span class="ml-2 font-semibold">4</span>
+</button>
+<button class="flex items-center bg-[#EFF6FF] text-[#1D4ED8] rounded-full px-3 py-1.5 font-body-sm text-sm transition-colors hover:bg-blue-100">
+<span>#Energy</span>
+<span class="ml-2 font-semibold">3</span>
+</button>
+<button class="flex items-center bg-[#EFF6FF] text-[#1D4ED8] rounded-full px-3 py-1.5 font-body-sm text-sm transition-colors hover:bg-blue-100">
+<span>#Robotics</span>
+<span class="ml-2 font-semibold">3</span>
+</button>
+</div>
+</section>
+<!-- Controls -->
+<div class="flex justify-between items-center py-2">
+<div class="font-body-sm text-sm text-on-surface-variant">42 articles found</div>
+<div class="flex items-center gap-3">
+<div class="flex bg-surface-container-lowest border border-border-low-contrast rounded-lg overflow-hidden">
+<button class="flex items-center gap-1 px-4 py-1.5 bg-[#EFF6FF] text-[#1D4ED8] font-body-sm text-sm font-semibold">
+<span class="material-symbols-outlined text-[18px]">grid_view</span> Grid
+            </button>
+<button class="flex items-center gap-1 px-4 py-1.5 text-on-surface-variant hover:bg-background-subtle font-body-sm text-sm">
+<span class="material-symbols-outlined text-[18px]">list</span> List
+            </button>
+</div>
+<select class="bg-surface-container-lowest border border-border-low-contrast rounded-lg px-3 py-1.5 font-body-sm text-sm text-primary focus:outline-none focus:border-primary">
+<option>Relevance</option>
+<option>Date</option>
+</select>
+</div>
+</div>
+<!-- Articles Grid -->
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest border border-border-low-contrast rounded-xl p-5 flex flex-col hover:shadow-md transition-shadow min-h-[280px]">
+<div class="flex justify-between items-center mb-3">
+<span class="font-label-caps text-[10px] tracking-wider text-[#1D4ED8] bg-[#EFF6FF] px-2 py-0.5 rounded uppercase">Technology</span>
+<span class="font-body-sm text-xs font-semibold text-[#166534]">Relevance: 92%</span>
+</div>
+<h3 class="font-headline-md text-[18px] leading-snug text-primary font-bold mb-2">OpenAI unveils GPT-4o with improved reasoning capabilities</h3>
+<p class="font-body-sm text-sm text-on-surface-variant mb-4 line-clamp-3">OpenAI announced a new model that significantly improves reasoning, coding, and real-world problem solving.</p>
+<div class="font-body-sm text-xs text-on-surface-variant mb-4 flex items-center gap-1">
+<span>2 hours ago</span>
+<span>·</span>
+<span>TechCrunch</span>
+</div>
+<div class="flex flex-wrap gap-1.5 mb-4 mt-auto">
+<span class="px-2 py-0.5 bg-[#EFF6FF] text-[#1D4ED8] rounded-full text-xs font-semibold">AI</span>
+<span class="px-2 py-0.5 bg-[#EFF6FF] text-[#1D4ED8] rounded-full text-xs font-semibold">OpenAI</span>
+<span class="px-2 py-0.5 bg-[#EFF6FF] text-[#1D4ED8] rounded-full text-xs font-semibold">Machine Learning</span>
+</div>
+<div class="flex justify-between items-center pt-3 border-t border-border-low-contrast mt-auto">
+<a class="font-body-sm text-sm text-[#1D4ED8] font-semibold flex items-center gap-1 hover:underline" href="#">Read article <span class="material-symbols-outlined text-[16px]">arrow_forward</span></a>
+<button class="text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined text-[20px]">bookmark_border</span></button>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest border border-border-low-contrast rounded-xl p-5 flex flex-col hover:shadow-md transition-shadow min-h-[280px]">
+<div class="flex justify-between items-center mb-3">
+<span class="font-label-caps text-[10px] tracking-wider text-[#B45309] bg-[#FEF3C7] px-2 py-0.5 rounded uppercase">Business</span>
+<span class="font-body-sm text-xs font-semibold text-[#166534]">Relevance: 89%</span>
+</div>
+<h3 class="font-headline-md text-[18px] leading-snug text-primary font-bold mb-2">Global markets rally as inflation shows signs of cooling</h3>
+<p class="font-body-sm text-sm text-on-surface-variant mb-4 line-clamp-3">Stock markets rose worldwide after key inflation data came in lower than expected, boosting investor confidence.</p>
+<div class="font-body-sm text-xs text-on-surface-variant mb-4 flex items-center gap-1">
+<span>3 hours ago</span>
+<span>·</span>
+<span>Reuters</span>
+</div>
+<div class="flex flex-wrap gap-1.5 mb-4 mt-auto">
+<span class="px-2 py-0.5 bg-[#EFF6FF] text-[#1D4ED8] rounded-full text-xs font-semibold">Economy</span>
+<span class="px-2 py-0.5 bg-[#EFF6FF] text-[#1D4ED8] rounded-full text-xs font-semibold">Markets</span>
+<span class="px-2 py-0.5 bg-[#EFF6FF] text-[#1D4ED8] rounded-full text-xs font-semibold">Inflation</span>
+</div>
+<div class="flex justify-between items-center pt-3 border-t border-border-low-contrast mt-auto">
+<a class="font-body-sm text-sm text-[#1D4ED8] font-semibold flex items-center gap-1 hover:underline" href="#">Read article <span class="material-symbols-outlined text-[16px]">arrow_forward</span></a>
+<button class="text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined text-[20px]">bookmark_border</span></button>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container-lowest border border-border-low-contrast rounded-xl p-5 flex flex-col hover:shadow-md transition-shadow min-h-[280px]">
+<div class="flex justify-between items-center mb-3">
+<span class="font-label-caps text-[10px] tracking-wider text-[#7E22CE] bg-[#F3E8FF] px-2 py-0.5 rounded uppercase">Science</span>
+<span class="font-body-sm text-xs font-semibold text-[#166534]">Relevance: 87%</span>
+</div>
+<h3 class="font-headline-md text-[18px] leading-snug text-primary font-bold mb-2">NASA discovers water ice on Mars' equatorial region</h3>
+<p class="font-body-sm text-sm text-on-surface-variant mb-4 line-clamp-3">New data from Mars Express reveals significant deposits of water ice beneath the planet's surface.</p>
+<div class="font-body-sm text-xs text-on-surface-variant mb-4 flex items-center gap-1">
+<span>5 hours ago</span>
+<span>·</span>
+<span>NASA.gov</span>
+</div>
+<div class="flex flex-wrap gap-1.5 mb-4 mt-auto">
+<span class="px-2 py-0.5 bg-[#EFF6FF] text-[#1D4ED8] rounded-full text-xs font-semibold">Space</span>
+<span class="px-2 py-0.5 bg-[#EFF6FF] text-[#1D4ED8] rounded-full text-xs font-semibold">Mars</span>
+<span class="px-2 py-0.5 bg-[#EFF6FF] text-[#1D4ED8] rounded-full text-xs font-semibold">Research</span>
+</div>
+<div class="flex justify-between items-center pt-3 border-t border-border-low-contrast mt-auto">
+<a class="font-body-sm text-sm text-[#1D4ED8] font-semibold flex items-center gap-1 hover:underline" href="#">Read article <span class="material-symbols-outlined text-[16px]">arrow_forward</span></a>
+<button class="text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined text-[20px]">bookmark_border</span></button>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="bg-surface-container-lowest border border-border-low-contrast rounded-xl p-5 flex flex-col hover:shadow-md transition-shadow min-h-[280px]">
+<div class="flex justify-between items-center mb-3">
+<span class="font-label-caps text-[10px] tracking-wider text-[#B45309] bg-[#FEF3C7] px-2 py-0.5 rounded uppercase">Business</span>
+<span class="font-body-sm text-xs font-semibold text-[#166534]">Relevance: 85%</span>
+</div>
+<h3 class="font-headline-md text-[18px] leading-snug text-primary font-bold mb-2">Startups raise $2.3B in funding across AI and biotech sectors</h3>
+<p class="font-body-sm text-sm text-on-surface-variant mb-4 line-clamp-3">Funding momentum continues as investors bet big on the future of artificial intelligence and biotechnology.</p>
+<div class="font-body-sm text-xs text-on-surface-variant mb-4 flex items-center gap-1">
+<span>6 hours ago</span>
+<span>·</span>
+<span>Bloomberg</span>
+</div>
+<div class="flex flex-wrap gap-1.5 mb-4 mt-auto">
+<span class="px-2 py-0.5 bg-[#EFF6FF] text-[#1D4ED8] rounded-full text-xs font-semibold">Startups</span>
+<span class="px-2 py-0.5 bg-[#EFF6FF] text-[#1D4ED8] rounded-full text-xs font-semibold">Venture Capital</span>
+<span class="px-2 py-0.5 bg-[#EFF6FF] text-[#1D4ED8] rounded-full text-xs font-semibold">AI</span>
+</div>
+<div class="flex justify-between items-center pt-3 border-t border-border-low-contrast mt-auto">
+<a class="font-body-sm text-sm text-[#1D4ED8] font-semibold flex items-center gap-1 hover:underline" href="#">Read article <span class="material-symbols-outlined text-[16px]">arrow_forward</span></a>
+<button class="text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined text-[20px]">bookmark_border</span></button>
+</div>
+</div>
+<!-- Card 5 -->
+<div class="bg-surface-container-lowest border border-border-low-contrast rounded-xl p-5 flex flex-col hover:shadow-md transition-shadow min-h-[280px]">
+<div class="flex justify-between items-center mb-3">
+<span class="font-label-caps text-[10px] tracking-wider text-[#1D4ED8] bg-[#EFF6FF] px-2 py-0.5 rounded uppercase">Global</span>
+<span class="font-body-sm text-xs font-semibold text-[#166534]">Relevance: 83%</span>
+</div>
+<h3 class="font-headline-md text-[18px] leading-snug text-primary font-bold mb-2">UN climate report: World must act faster to avoid tipping points</h3>
+<p class="font-body-sm text-sm text-on-surface-variant mb-4 line-clamp-3">The latest UN report warns that current emission cuts are not enough to meet global temperature goals.</p>
+<div class="font-body-sm text-xs text-on-surface-variant mb-4 flex items-center gap-1">
+<span>7 hours ago</span>
+<span>·</span>
+<span>UN News</span>
+</div>
+<div class="flex flex-wrap gap-1.5 mb-4 mt-auto">
+<span class="px-2 py-0.5 bg-[#EFF6FF] text-[#1D4ED8] rounded-full text-xs font-semibold">Climate Change</span>
+<span class="px-2 py-0.5 bg-[#EFF6FF] text-[#1D4ED8] rounded-full text-xs font-semibold">Environment</span>
+<span class="px-2 py-0.5 bg-[#EFF6FF] text-[#1D4ED8] rounded-full text-xs font-semibold">Policy</span>
+</div>
+<div class="flex justify-between items-center pt-3 border-t border-border-low-contrast mt-auto">
+<a class="font-body-sm text-sm text-[#1D4ED8] font-semibold flex items-center gap-1 hover:underline" href="#">Read article <span class="material-symbols-outlined text-[16px]">arrow_forward</span></a>
+<button class="text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined text-[20px]">bookmark_border</span></button>
+</div>
+</div>
+<!-- Card 6 -->
+<div class="bg-surface-container-lowest border border-border-low-contrast rounded-xl p-5 flex flex-col hover:shadow-md transition-shadow min-h-[280px]">
+<div class="flex justify-between items-center mb-3">
+<span class="font-label-caps text-[10px] tracking-wider text-[#1D4ED8] bg-[#EFF6FF] px-2 py-0.5 rounded uppercase">Technology</span>
+<span class="font-body-sm text-xs font-semibold text-[#166534]">Relevance: 82%</span>
+</div>
+<h3 class="font-headline-md text-[18px] leading-snug text-primary font-bold mb-2">Cybersecurity firm warns of new phishing campaign</h3>
+<p class="font-body-sm text-sm text-on-surface-variant mb-4 line-clamp-3">Experts detected a large-scale phishing operation targeting major companies worldwide.</p>
+<div class="font-body-sm text-xs text-on-surface-variant mb-4 flex items-center gap-1">
+<span>8 hours ago</span>
+<span>·</span>
+<span>The Verge</span>
+</div>
+<div class="flex flex-wrap gap-1.5 mb-4 mt-auto">
+<span class="px-2 py-0.5 bg-[#EFF6FF] text-[#1D4ED8] rounded-full text-xs font-semibold">Cybersecurity</span>
+<span class="px-2 py-0.5 bg-[#EFF6FF] text-[#1D4ED8] rounded-full text-xs font-semibold">Phishing</span>
+<span class="px-2 py-0.5 bg-[#EFF6FF] text-[#1D4ED8] rounded-full text-xs font-semibold">Security</span>
+</div>
+<div class="flex justify-between items-center pt-3 border-t border-border-low-contrast mt-auto">
+<a class="font-body-sm text-sm text-[#1D4ED8] font-semibold flex items-center gap-1 hover:underline" href="#">Read article <span class="material-symbols-outlined text-[16px]">arrow_forward</span></a>
+<button class="text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined text-[20px]">bookmark_border</span></button>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Shared Component: Footer -->
+<footer class="bg-surface-container dark:bg-surface-container-highest text-on-surface-variant dark:text-on-surface-variant font-label-caps text-label-caps fixed bottom-0 right-0 w-[calc(100%-16rem)] h-10 border-t border-border-low-contrast dark:border-outline-variant flat no shadows flex items-center justify-between px-gutter-grid ml-64 z-40 cursor-default">
+<div>System Status: Pipeline Active</div>
+<div class="flex gap-6">
+<span class="hover:text-on-surface dark:hover:text-surface-bright">Bronze Sync: 98%</span>
+<span class="hover:text-on-surface dark:hover:text-surface-bright">Silver Process: 100%</span>
+<span class="bg-gold text-on-tertiary-fixed font-bold rounded-full px-2 hover:text-on-surface dark:hover:text-surface-bright">Gold Validation: Active</span>
+</div>
+</footer>
+</body></html>

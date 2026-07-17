@@ -20,7 +20,8 @@
   },
   "North America": {
     "United States": "us",
-    "Canada": "ca"
+    "Canada": "ca",
+    "Mexico": "mx"
   },
   "Asia": {
     "India": "in",
@@ -28,7 +29,6 @@
     "China": "cn"
   },
   "South America": {
-    "Mexico": "mx",
     "Brazil": "br",
     "Argentina": "ar"
   },

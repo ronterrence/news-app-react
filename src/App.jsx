@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 
 import countriesByContinent from "./data/countries.json";
 import ContinentNewsCard from "./components/ContinentNewsCard";
@@ -51,9 +51,10 @@ function buildDynamicSuggestions(signalsByContinent, selectedTopic) {
 function App() {
   const continents = Object.keys(countriesByContinent);
   const [selectedTopic, setSelectedTopic] = useState("global");
-  const [goldSearchRequest, setGoldSearchRequest] = useState(null);
+  const [goldQuery, setGoldQuery] = useState("");
   const [activeKeyword, setActiveKeyword] = useState("");
   const [signalsByContinent, setSignalsByContinent] = useState({});
+  const goldSearchPanelRef = useRef(null);
 
   const dynamicSuggestions = useMemo(
     () => buildDynamicSuggestions(signalsByContinent, selectedTopic),
@@ -62,11 +63,8 @@ function App() {
 
   const handleKeywordSearch = (keyword) => {
     setActiveKeyword(keyword);
-    setGoldSearchRequest({
-      id: Date.now(),
-      query: keyword,
-      source: "keyword",
-    });
+    setGoldQuery(keyword);
+    goldSearchPanelRef.current?.search(keyword);
 
     const goldPanel = document.getElementById("gold-search-panel");
     goldPanel?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -76,12 +74,25 @@ function App() {
     setActiveKeyword("");
   };
 
-  const handleSignalsChange = (continent, keywords) => {
-    setSignalsByContinent((current) => ({
-      ...current,
-      [continent]: keywords.map((keyword) => keyword.word),
-    }));
-  };
+  const handleSignalsChange = useCallback((continent, keywords) => {
+    const nextSignals = keywords.map((keyword) => keyword.word);
+
+    setSignalsByContinent((current) => {
+      const currentSignals = current[continent] ?? [];
+      const isUnchanged =
+        currentSignals.length === nextSignals.length &&
+        currentSignals.every((signal, index) => signal === nextSignals[index]);
+
+      if (isUnchanged) {
+        return current;
+      }
+
+      return {
+        ...current,
+        [continent]: nextSignals,
+      };
+    });
+  }, []);
 
   return (
     <main className="app-shell">
@@ -102,7 +113,9 @@ function App() {
       </section>
 
       <GoldSearchPanel
-        searchRequest={goldSearchRequest}
+        ref={goldSearchPanelRef}
+        query={goldQuery}
+        onQueryChange={setGoldQuery}
         onSearchInteraction={handleGoldSearchInteraction}
         suggestions={dynamicSuggestions}
       />

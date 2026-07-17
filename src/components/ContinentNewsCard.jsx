@@ -1,9 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { fetchNews } from "../services/newsApi";
 import { extractKeywords } from "../utils/keywords";
 import NewsList from "./NewsList";
 import KeywordChips from "./KeywordChips";
+
+const EMPTY_ARTICLES = [];
 
 function ContinentNewsCard({
   continent,
@@ -19,10 +21,23 @@ function ContinentNewsCard({
     selectedTopic === "global"
       ? selectedCountry
       : `${selectedCountry} ${selectedTopic}`;
-
-  const [articles, setArticles] = useState([]);
-  const [status, setStatus] = useState("idle");
-  const [errorMessage, setErrorMessage] = useState("");
+  const countryCode = countries[selectedCountry];
+  const queryKey = `${countryCode}:${semanticQuery}`;
+  const [requestState, setRequestState] = useState({
+    queryKey: "",
+    status: "idle",
+    articles: EMPTY_ARTICLES,
+    errorMessage: "",
+  });
+  const abortControllerRef = useRef(null);
+  const requestSequenceRef = useRef(0);
+  const isCurrentRequest = requestState.queryKey === queryKey;
+  const status = isCurrentRequest ? requestState.status : "idle";
+  const articles =
+    isCurrentRequest && requestState.status === "success"
+      ? requestState.articles
+      : EMPTY_ARTICLES;
+  const errorMessage = isCurrentRequest ? requestState.errorMessage : "";
 
   const keywords = useMemo(
     () =>
@@ -36,28 +51,57 @@ function ContinentNewsCard({
     onSignalsChange?.(continent, keywords);
   }, [continent, keywords, onSignalsChange]);
 
-  const loadNews = useCallback(async () => {
-    const countryCode = countries[selectedCountry];
+  useEffect(
+    () => () => {
+      requestSequenceRef.current += 1;
+      abortControllerRef.current?.abort();
+    },
+    [queryKey]
+  );
 
-    setStatus("loading");
-    setErrorMessage("");
+  const loadNews = useCallback(async () => {
+    abortControllerRef.current?.abort();
+    const controller = new AbortController();
+    const requestSequence = ++requestSequenceRef.current;
+    abortControllerRef.current = controller;
+    setRequestState({
+      queryKey,
+      status: "loading",
+      articles: EMPTY_ARTICLES,
+      errorMessage: "",
+    });
 
     try {
-      const results = await fetchNews(countryCode, selectedCountry, selectedTopic);
-      setArticles(results);
-      setStatus("success");
+      const results = await fetchNews(countryCode, selectedCountry, selectedTopic, {
+        signal: controller.signal,
+      });
+
+      if (requestSequence !== requestSequenceRef.current) {
+        return;
+      }
+
+      setRequestState({
+        queryKey,
+        status: "success",
+        articles: results,
+        errorMessage: "",
+      });
     } catch (error) {
-      setArticles([]);
-      setErrorMessage(error.message);
-      setStatus("error");
+      if (error.name === "AbortError" || requestSequence !== requestSequenceRef.current) {
+        return;
+      }
+
+      setRequestState({
+        queryKey,
+        status: "error",
+        articles: EMPTY_ARTICLES,
+        errorMessage: error.message,
+      });
     }
-  }, [countries, selectedCountry, selectedTopic]);
+  }, [countryCode, queryKey, selectedCountry, selectedTopic]);
 
   const handleCountryChange = (event) => {
     setSelectedCountry(event.target.value);
-    setArticles([]);
-    setStatus("idle");
-    setErrorMessage("");
   };
 
   return (
@@ -116,15 +160,17 @@ function ContinentNewsCard({
       )}
 
       {status === "loading" && (
-        <p className="status-text">Loading article matches for {selectedCountry}...</p>
+        <p className="status-text" role="status" aria-live="polite">
+          Loading article matches for {selectedCountry}...
+        </p>
       )}
 
       {status === "error" && (
-        <p className="error-text">Error: {errorMessage}</p>
+        <p className="error-text" role="alert">Error: {errorMessage}</p>
       )}
 
       {status === "success" && (
-        <>
+        <div className="continent-results" role="status" aria-live="polite">
           <div className="signals-panel">
             <div className="section-heading-row keywords-heading-row">
               <h3>Keyword signals</h3>
@@ -154,7 +200,7 @@ function ContinentNewsCard({
             </p>
             <NewsList articles={articles} />
           </div>
-        </>
+        </div>
       )}
     </section>
   );

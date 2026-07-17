@@ -21,6 +21,7 @@ function TopicToggle({ selectedTopic, onTopicChange }) {
             <button
               key={topic}
               type="button"
+              aria-pressed={isActive}
               className={`topic-toggle-button${isActive ? " is-active" : ""}`}
               onClick={() => onTopicChange(topic)}
             >
