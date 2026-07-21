@@ -57,6 +57,7 @@ describe("Metal Intelligence feed", () => {
     render(<App />);
 
     expect(screen.getByText(/Start with a country, topic, or semantic search/)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Refresh" })).toBeDisabled();
     expect(fetchNews).not.toHaveBeenCalled();
     expect(searchNews).not.toHaveBeenCalled();
   });
@@ -174,6 +175,40 @@ describe("Metal Intelligence feed", () => {
       expect(list).toHaveAttribute("aria-pressed", "true");
       expect(grid).toHaveAttribute("aria-pressed", "false");
     });
+  });
+
+  it("refreshes the last submitted context without using unsent search text", async () => {
+    fetchNews.mockResolvedValue(articles.slice(0, 1));
+    render(<App />);
+
+    await userEvent.selectOptions(
+      screen.getByRole("combobox", { name: "Country" }),
+      "France"
+    );
+    await screen.findByText("Older technology report");
+
+    await userEvent.type(
+      screen.getByRole("textbox", { name: "Semantic search" }),
+      "unsent query"
+    );
+    await userEvent.click(screen.getByRole("button", { name: "Refresh" }));
+
+    await waitFor(() => expect(fetchNews).toHaveBeenCalledTimes(2));
+    expect(searchNews).not.toHaveBeenCalled();
+    expect(fetchNews).toHaveBeenLastCalledWith(
+      "fr",
+      "France",
+      "global",
+      expect.objectContaining({ signal: expect.any(AbortSignal) })
+    );
+  });
+
+  it("moves focus to the retrieval controls for a new analysis", async () => {
+    render(<App />);
+
+    await userEvent.click(screen.getByRole("button", { name: "New Analysis" }));
+
+    expect(screen.getByRole("combobox", { name: "Country" })).toHaveFocus();
   });
 
   it("renders response-derived article details without prototype-only metrics", async () => {

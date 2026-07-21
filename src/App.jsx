@@ -33,6 +33,7 @@ function App() {
   const [activeKeyword, setActiveKeyword] = useState("");
   const [viewMode, setViewMode] = useState("grid");
   const [sortMode, setSortMode] = useState("relevance");
+  const [lastRequest, setLastRequest] = useState(null);
   const [requestState, setRequestState] = useState({
     status: "idle",
     articles: EMPTY_ARTICLES,
@@ -41,6 +42,7 @@ function App() {
   });
   const abortControllerRef = useRef(null);
   const requestSequenceRef = useRef(0);
+  const countrySelectRef = useRef(null);
 
   const selectedContinent = selectedCountry
     ? countryIndex[selectedCountry]?.continent ?? ""
@@ -53,6 +55,7 @@ function App() {
       const trimmedTerm = term.trim();
 
       if (!country && topic === "global" && !trimmedTerm) {
+        setLastRequest(null);
         setRequestState({
           status: "idle",
           articles: EMPTY_ARTICLES,
@@ -64,6 +67,7 @@ function App() {
 
       const controller = new AbortController();
       abortControllerRef.current = controller;
+      setLastRequest({ country, topic, term: trimmedTerm });
       const semanticQuery = buildSearchQuery(trimmedTerm, country, topic);
       const submittedLabel = semanticQuery || "Global news";
 
@@ -174,12 +178,27 @@ function App() {
     setSearchQuery("");
     setActiveKeyword("");
     setSortMode("relevance");
+    setLastRequest(null);
     setRequestState({
       status: "idle",
       articles: EMPTY_ARTICLES,
       errorMessage: "",
       submittedLabel: "",
     });
+  };
+
+  const handleRefresh = () => {
+    if (lastRequest) {
+      executeRetrieval(lastRequest);
+    }
+  };
+
+  const handleNewAnalysis = () => {
+    const topicsPanel = document.getElementById("topics");
+    if (typeof topicsPanel?.scrollIntoView === "function") {
+      topicsPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    countrySelectRef.current?.focus({ preventScroll: true });
   };
 
   const keywords = useMemo(
@@ -230,15 +249,14 @@ function App() {
             <span>Semantic news desk</span>
           </div>
         </div>
+        <button className="new-analysis-button" type="button" onClick={handleNewAnalysis}>
+          New Analysis
+        </button>
         <nav className="section-nav">
           <a href="#feed"><Icon name="feed" />Feed</a>
           <a href="#topics"><Icon name="topics" />Topics</a>
           <a href="#semantic-search"><Icon name="search" />Semantic Search</a>
         </nav>
-        <div className="pipeline-note">
-          <span className="status-dot" aria-hidden="true" />
-          Semantic index supplied by the backend
-        </div>
       </aside>
 
       <div className="content-shell">
@@ -257,41 +275,33 @@ function App() {
               Search
             </button>
           </form>
+          <button
+            className="refresh-button"
+            type="button"
+            onClick={handleRefresh}
+            disabled={!lastRequest || requestState.status === "loading"}
+          >
+            <Icon name="reset" size={17} /> Refresh
+          </button>
           <button className="reset-button" type="button" onClick={handleReset}>
             <Icon name="reset" size={17} /> Reset
           </button>
         </header>
 
         <main className="feed-canvas" id="feed">
-          <section className="page-intro" aria-labelledby="page-title">
-            <div>
-              <p className="eyebrow">Intelligence feed</p>
-              <h1 id="page-title">World News Snapshot</h1>
-              <p>
-                Explore the semantic news index by country, topic, or concept.
-              </p>
-            </div>
-            {selectedContinent && (
-              <div className="region-context" aria-live="polite">
-                <span>Region</span>
-                <strong>{selectedContinent}</strong>
-              </div>
-            )}
-          </section>
+          <h1 id="page-title" className="sr-only">World News Snapshot</h1>
 
-          <section className="filter-panel" id="topics" aria-labelledby="filter-title">
-            <div className="filter-heading">
-              <div>
-                <p className="eyebrow">Retrieval context</p>
-                <h2 id="filter-title">Filter the feed</h2>
-              </div>
-              <p>Selections load automatically.</p>
+          <section className="context-strip" id="topics" aria-labelledby="filter-title">
+            <div className="context-strip-heading">
+              <span className="eyebrow">Retrieval context</span>
+              <h2 id="filter-title">The Wire</h2>
             </div>
             <div className="filter-grid">
               <label className="country-control" htmlFor="country-select">
                 <span>Country</span>
                 <select
                   id="country-select"
+                  ref={countrySelectRef}
                   value={selectedCountry}
                   onChange={handleCountryChange}
                 >
@@ -310,6 +320,12 @@ function App() {
                 onTopicChange={handleTopicChange}
               />
             </div>
+            {selectedContinent && (
+              <div className="region-context" aria-live="polite">
+                <span>Region</span>
+                <strong>{selectedContinent}</strong>
+              </div>
+            )}
           </section>
 
           <section className="stats-grid" aria-label="Current feed summary">
@@ -347,10 +363,8 @@ function App() {
           <section className="feed-section" aria-labelledby="results-title">
             <div className="feed-toolbar">
               <div>
-                <p className="eyebrow">Current results</p>
-                <h2 id="results-title">
-                  {requestState.submittedLabel || "Your feed is ready"}
-                </h2>
+                <h2 id="results-title">{requestState.articles.length} articles found</h2>
+                {requestState.submittedLabel && <p>{requestState.submittedLabel}</p>}
               </div>
               <div className="view-tools">
                 <div className="view-toggle" aria-label="Article layout">
