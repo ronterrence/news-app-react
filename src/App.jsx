@@ -4,6 +4,7 @@ import countriesByContinent from "./data/countries.json";
 import KeywordChips from "./components/KeywordChips";
 import NewsList from "./components/NewsList";
 import TopicToggle from "./components/TopicToggle";
+import Icon from "./components/Icon";
 import { fetchNews, searchNews } from "./services/newsApi";
 import { extractKeywords } from "./utils/keywords";
 
@@ -224,16 +225,15 @@ function App() {
     <div className="app-frame">
       <aside className="side-nav" aria-label="Primary navigation">
         <div className="brand-block">
-          <span className="brand-mark" aria-hidden="true">MI</span>
           <div>
             <strong>Metal Intelligence</strong>
             <span>Semantic news desk</span>
           </div>
         </div>
         <nav className="section-nav">
-          <a href="#feed">Feed</a>
-          <a href="#topics">Topics</a>
-          <a href="#semantic-search">Semantic Search</a>
+          <a href="#feed"><Icon name="feed" />Feed</a>
+          <a href="#topics"><Icon name="topics" />Topics</a>
+          <a href="#semantic-search"><Icon name="search" />Semantic Search</a>
         </nav>
         <div className="pipeline-note">
           <span className="status-dot" aria-hidden="true" />
@@ -246,6 +246,7 @@ function App() {
           <a className="mobile-brand" href="#feed">Metal Intelligence</a>
           <form className="top-search" id="semantic-search" onSubmit={handleSearchSubmit}>
             <label className="sr-only" htmlFor="semantic-query">Semantic search</label>
+            <Icon name="search" className="search-icon" size={18} />
             <input
               id="semantic-query"
               value={searchQuery}
@@ -257,7 +258,7 @@ function App() {
             </button>
           </form>
           <button className="reset-button" type="button" onClick={handleReset}>
-            Reset
+            <Icon name="reset" size={17} /> Reset
           </button>
         </header>
 
@@ -313,16 +314,16 @@ function App() {
 
           <section className="stats-grid" aria-label="Current feed summary">
             <div className="stat-card">
-              <span className="stat-icon stat-icon-dark" aria-hidden="true">A</span>
-              <div><strong>{requestState.articles.length}</strong><span>Articles</span></div>
+              <span className="stat-icon stat-icon-dark"><Icon name="article" size={23} /></span>
+              <div><strong>{requestState.articles.length}</strong><span>Articles</span><small>Current results</small></div>
             </div>
             <div className="stat-card">
-              <span className="stat-icon stat-icon-blue" aria-hidden="true">T</span>
-              <div><strong>{keywords.length}</strong><span>Trending signals</span></div>
+              <span className="stat-icon stat-icon-blue"><Icon name="signal" size={23} /></span>
+              <div><strong>{keywords.length}</strong><span>Trending signals</span><small>Extracted from results</small></div>
             </div>
             <div className="stat-card">
-              <span className="stat-icon stat-icon-gold" aria-hidden="true">S</span>
-              <div><strong>{sourceCount}</strong><span>Sources</span></div>
+              <span className="stat-icon stat-icon-gold"><Icon name="source" size={23} /></span>
+              <div><strong>{sourceCount}</strong><span>Sources</span><small>Distinct publishers</small></div>
             </div>
           </section>
 
@@ -357,12 +358,12 @@ function App() {
                     type="button"
                     aria-pressed={viewMode === "grid"}
                     onClick={() => setViewMode("grid")}
-                  >Grid</button>
+                  ><Icon name="grid" size={16} />Grid</button>
                   <button
                     type="button"
                     aria-pressed={viewMode === "list"}
                     onClick={() => setViewMode("list")}
-                  >List</button>
+                  ><Icon name="list" size={16} />List</button>
                 </div>
                 <label>
                   <span className="sr-only">Sort articles</span>

@@ -31,23 +31,34 @@ function NewsList({ articles, viewMode = "grid" }) {
     <div className={`news-list news-list-${viewMode}`}>
       {articles.map((article) => {
         const snippet = formatSnippet(article.description);
+        const articleKeywords = Array.isArray(article.keywords)
+          ? article.keywords.filter(Boolean).slice(0, 3)
+          : [];
 
         return (
           <article key={article.id} className="news-item-card">
             <div className="news-card-topline">
               {article.category ? <span className="category-pill">{article.category}</span> : <span />}
-              <span className="news-date">{formatPublishedDate(article.publishedAt)}</span>
             </div>
             <h3 className="news-title">{article.title}</h3>
             {snippet && <p className="news-snippet">{snippet}</p>}
-            <div className="news-card-footer">
+            <div className="news-meta">
+              <span className="news-date">{formatPublishedDate(article.publishedAt)}</span>
+              <span aria-hidden="true">·</span>
               <span className="news-source">{article.source}</span>
-              {article.url && (
+            </div>
+            {articleKeywords.length > 0 && (
+              <ul className="article-keywords" aria-label="Article keywords">
+                {articleKeywords.map((keyword) => <li key={keyword}>{keyword}</li>)}
+              </ul>
+            )}
+            {article.url && (
+              <div className="news-card-footer">
                 <a href={article.url} target="_blank" rel="noreferrer">
                   Read article <span aria-hidden="true">→</span>
                 </a>
-              )}
-            </div>
+              </div>
+            )}
           </article>
         );
       })}

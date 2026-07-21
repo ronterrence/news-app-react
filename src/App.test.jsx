@@ -176,6 +176,25 @@ describe("Metal Intelligence feed", () => {
     });
   });
 
+  it("renders response-derived article details without prototype-only metrics", async () => {
+    fetchNews.mockResolvedValue([{ ...articles[0], keywords: ["AI", "Software"] }]);
+    render(<App />);
+
+    await userEvent.selectOptions(
+      screen.getByRole("combobox", { name: "Country" }),
+      "France"
+    );
+
+    expect(await screen.findByText("Older technology report")).toBeInTheDocument();
+    expect(screen.getByRole("list", { name: "Article keywords" })).toHaveTextContent("AI");
+    expect(screen.getByRole("link", { name: /Read article/ })).toHaveAttribute(
+      "href",
+      "https://example.com/older"
+    );
+    expect(screen.queryByText(/Relevance:/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Pipeline Active/)).not.toBeInTheDocument();
+  });
+
   it("resets filters and results without issuing another request", async () => {
     fetchNews.mockResolvedValue(articles);
     render(<App />);

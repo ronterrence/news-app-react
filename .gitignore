@@ -44,3 +44,7 @@ Dockerfile
 
 # Local project notes
 BACKEND_ARCHITECTURE_SUMMARY.md
+
+# Config files
+ config/field_encryption_key
+config/secret_key
